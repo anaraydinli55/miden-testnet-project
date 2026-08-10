@@ -1,0 +1,16 @@
+store_filepath = "store.sqlite3"
+secret_keys_directory = "keystore"
+token_symbol_map_filepath = "token_symbol_map.toml"
+package_directory = "packages"
+
+[rpc]
+endpoint = "https://rpc.testnet.miden.io"
+timeout_ms = 10000
+
+[note_transport]
+endpoint = "https://transport.miden.io"
+timeout_ms = 10000
+
+[remote_prover_timeout]
+secs = 20
+nanos = 0

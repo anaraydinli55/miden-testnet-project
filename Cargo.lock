@@ -289,6 +289,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bank_account"
+version = "0.1.0"
+dependencies = [
+ "miden",
+]
+
+[[package]]
 name = "base16ct"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1706,6 +1713,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "id-arena"
+version = "2.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d3067d79b975e8844ca9eb072e16b31c3c1c36928edf9c6789548c524d0d954"
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1739,6 +1752,8 @@ checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
  "hashbrown 0.17.1",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -2216,6 +2231,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "miden"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c21f5ff93e5cb2f68e4bc7acb778b5ed1f3af2d54737d5f39cef4136392add5"
+dependencies = [
+ "miden-base",
+ "miden-base-macros",
+ "miden-base-sys",
+ "miden-field",
+ "miden-field-repr",
+ "miden-sdk-alloc",
+ "miden-stdlib-sys",
+ "wit-bindgen",
+]
+
+[[package]]
 name = "miden-ace-codegen"
 version = "0.23.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2303,6 +2334,49 @@ dependencies = [
  "serde",
  "smallvec",
  "thiserror",
+]
+
+[[package]]
+name = "miden-base"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a20ff6f7505d4482a28df916403d64721ec537a1eb8e686cfa04bb1912d1e117"
+dependencies = [
+ "miden-base-sys",
+ "miden-stdlib-sys",
+]
+
+[[package]]
+name = "miden-base-macros"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "553afd8a19486a250323f0653b02ac09af1ffcf23bf426a8e054529ff3a8248a"
+dependencies = [
+ "heck",
+ "miden-assembly-syntax",
+ "miden-debug-types",
+ "miden-formatting",
+ "miden-mast-package",
+ "miden-project",
+ "miden-protocol",
+ "midenc-frontend-wasm-metadata",
+ "proc-macro2",
+ "quote",
+ "semver 1.0.28",
+ "syn 2.0.118",
+ "toml 1.1.2+spec-1.1.0",
+ "wit-bindgen-core",
+ "wit-bindgen-rust",
+]
+
+[[package]]
+name = "miden-base-sys"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8efe798d23cf3c4a87ff71bc54685fed611c7a0356ff23897a5e864cc1f39d3"
+dependencies = [
+ "miden-field-repr",
+ "miden-stdlib-sys",
 ]
 
 [[package]]
@@ -2501,6 +2575,27 @@ dependencies = [
  "serde",
  "subtle",
  "thiserror",
+]
+
+[[package]]
+name = "miden-field-repr"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "894ff600f6cdc9d6ddd86343f5bc592e6305815d2a405f2d0926ddd3e3668080"
+dependencies = [
+ "miden-field",
+ "miden-field-repr-derive",
+]
+
+[[package]]
+name = "miden-field-repr-derive"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de4192b056c65b721fd300130605e61f6f7c7f44abde4ba6c9f920bf5d5bcbf2"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.118",
 ]
 
 [[package]]
@@ -2742,6 +2837,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "miden-sdk-alloc"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60727b43652a2a47daae3ef2b73ed8c491b276e689e9c7a26923aec095fc9520"
+
+[[package]]
 name = "miden-serde-utils"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2788,6 +2889,15 @@ checksum = "faeb47a90c55c5d45051d23cf691588804dd531995b4582c79108b64e445a905"
 dependencies = [
  "p3-field",
  "p3-symmetric",
+]
+
+[[package]]
+name = "miden-stdlib-sys"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33c7fe77152e9cd74650673d847f43b32922ed1f7cdfb5c49a798cb578f081b4"
+dependencies = [
+ "miden-field",
 ]
 
 [[package]]
@@ -5629,12 +5739,34 @@ dependencies = [
 
 [[package]]
 name = "wasm-encoder"
+version = "0.247.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30b6733b8b91d010a6ac5b0fb237dc46a19650bc4c67db66857e2e787d437204"
+dependencies = [
+ "leb128fmt",
+ "wasmparser 0.247.0",
+]
+
+[[package]]
+name = "wasm-encoder"
 version = "0.253.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59972d6cd272259de647b7c1f1912e45e289c75ffd4be04e10695507cd7e1b59"
 dependencies = [
  "leb128fmt",
  "wasmparser 0.253.0",
+]
+
+[[package]]
+name = "wasm-metadata"
+version = "0.247.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "665fe59e56cc9b419ca6fcca56673e3421d1a5011e3b65caf6b726fd9e041d10"
+dependencies = [
+ "anyhow",
+ "indexmap",
+ "wasm-encoder 0.247.0",
+ "wasmparser 0.247.0",
 ]
 
 [[package]]
@@ -5648,6 +5780,18 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "wasmparser"
+version = "0.247.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e6fb4c2bee46c5ea4d40f8cdb5c131725cd976718ec56f1c8e82fbde5fa2a80"
+dependencies = [
+ "bitflags 2.13.0",
+ "hashbrown 0.17.1",
+ "indexmap",
+ "semver 1.0.28",
 ]
 
 [[package]]
@@ -5703,7 +5847,7 @@ dependencies = [
  "leb128fmt",
  "memchr",
  "unicode-width 0.2.2",
- "wasm-encoder",
+ "wasm-encoder 0.253.0",
 ]
 
 [[package]]
@@ -5895,6 +6039,89 @@ name = "wit-bindgen"
 version = "0.57.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
+dependencies = [
+ "wit-bindgen-rust-macro",
+]
+
+[[package]]
+name = "wit-bindgen-core"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02dee27a2dc20d1008016c742ec9fc6ea498492994ba3750be7454cbc97ff04c"
+dependencies = [
+ "anyhow",
+ "heck",
+ "wit-parser",
+]
+
+[[package]]
+name = "wit-bindgen-rust"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5007dae772945b7a5003d69d90a3a4a78929d41f19d004e980c4259a6af4484"
+dependencies = [
+ "anyhow",
+ "heck",
+ "indexmap",
+ "prettyplease",
+ "syn 2.0.118",
+ "wasm-metadata",
+ "wit-bindgen-core",
+ "wit-component",
+]
+
+[[package]]
+name = "wit-bindgen-rust-macro"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af9237d678e3513ad24e96fe98beacdc0db6405284ba2a2400418cf0d42caa89"
+dependencies = [
+ "anyhow",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.118",
+ "wit-bindgen-core",
+ "wit-bindgen-rust",
+]
+
+[[package]]
+name = "wit-component"
+version = "0.247.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d567162a6b9843080e5e0053f696623ff694bae8ae017c9ec536d1873bbe3d8"
+dependencies = [
+ "anyhow",
+ "bitflags 2.13.0",
+ "indexmap",
+ "log",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "wasm-encoder 0.247.0",
+ "wasm-metadata",
+ "wasmparser 0.247.0",
+ "wit-parser",
+]
+
+[[package]]
+name = "wit-parser"
+version = "0.247.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ffe4064318cdf3c08cb99343b44c039fcefe61ccdf58aa9975285f13d74d1fc"
+dependencies = [
+ "anyhow",
+ "hashbrown 0.17.1",
+ "id-arena",
+ "indexmap",
+ "log",
+ "semver 1.0.28",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "unicode-xid",
+ "wasmparser 0.247.0",
+]
 
 [[package]]
 name = "wyz"
