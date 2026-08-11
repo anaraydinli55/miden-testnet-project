@@ -1,0 +1,4 @@
+# SAKASENA (SKS) Faucet Toplam Basım İlklendirmesi (4 Elemanlı Word Formatı)
+["miden::standards::faucets::fungible::total_issuance"]
+type = "Value"
+value = ["0", "0", "0", "0"]

@@ -6131,6 +6131,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "withdraw_note"
+version = "0.1.0"
+dependencies = [
+ "miden",
+]
+
+[[package]]
 name = "wyz"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
