@@ -1,0 +1,15 @@
+[package]
+name = "vault_deposit_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:vault-deposit-note/miden-vault-deposit-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+time-lock-vault = { path = "../time-lock-vault" }
+
+[package.metadata.miden.dependencies]
+time-lock-vault = { wit = "../time-lock-vault/target/generated-wit/" }

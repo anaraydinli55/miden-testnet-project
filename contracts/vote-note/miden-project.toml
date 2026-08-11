@@ -1,0 +1,15 @@
+[package]
+name = "vote_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:vote-note/miden-vote-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+ballot-box = { path = "../ballot-box" }
+
+[package.metadata.miden.dependencies]
+ballot-box = { wit = "../ballot-box/target/generated-wit/" }

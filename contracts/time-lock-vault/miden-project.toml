@@ -1,0 +1,14 @@
+[package]
+name = "time-lock-vault"
+version = "0.1.0"
+
+[lib]
+kind = "account-component"
+namespace = "miden:time-lock-vault/vault-contract@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+
+[package.metadata.miden]
+supported-types = ["RegularAccountUpdatableCode"]

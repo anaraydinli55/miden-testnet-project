@@ -1,0 +1,15 @@
+[package]
+name = "vault_withdraw_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:vault-withdraw-note/miden-vault-withdraw-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+time-lock-vault = { path = "../time-lock-vault" }
+
+[package.metadata.miden.dependencies]
+time-lock-vault = { wit = "../time-lock-vault/target/generated-wit/" }
