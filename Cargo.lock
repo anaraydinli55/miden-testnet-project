@@ -981,6 +981,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "deposit_note"
+version = "0.1.0"
+dependencies = [
+ "miden",
+]
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"

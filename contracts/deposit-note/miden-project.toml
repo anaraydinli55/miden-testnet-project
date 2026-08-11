@@ -1,0 +1,17 @@
+[package]
+name = "deposit_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:deposit-note/miden-deposit-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+# Sahte 'add-contract' yerine gerçek 'bank-account' klasörümüzü ekledik
+bank-account = { path = "../bank-account" }
+
+[package.metadata.miden.dependencies]
+# Sahte 'add-contract' yerine gerçek 'bank-account' WIT klasörümüzü ekledik
+bank-account = { wit = "../bank-account/target/generated-wit/" }

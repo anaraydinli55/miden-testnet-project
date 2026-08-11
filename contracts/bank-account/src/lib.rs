@@ -10,37 +10,28 @@ pub struct BankAccountStorage {
     pub balances: StorageMap<Word, Felt>,
 }
 
-// 2. Dışarıya açılacak fonksiyon arayüzlerini #[component] trait ile tanımlıyoruz
+// 2. Trait arayüz ismini BankContract, deposit ismini bank_deposit olarak güncelliyoruz
 #[component]
-pub trait BankAccount {
-    fn deposit(&mut self, user_key: Word, amount: Felt) -> Felt;
-    fn get_balance(&self, user_key: Word) -> Felt;
+pub trait BankContract {
+    fn bank_deposit(&mut self, user_key: Word, amount: Felt) -> Felt; // <-- bank_deposit yapıldı
+    fn check_balance(&self, user_key: Word) -> Felt;
 }
 
-// 3. Trait'i depolama alanımız için #[component] impl bloğu ile uyguluyoruz
+// 3. Trait'i #[component] impl bloğu ile uyguluyoruz
 #[component]
-impl BankAccount for BankAccountStorage {
+impl BankContract for BankAccountStorage {
     /// Kullanıcının banka hesabına belirli bir miktarda varlık depozit eder.
-    /// Güncellenmiş yeni bakiye değerini döner.
-    fn deposit(&mut self, user_key: Word, amount: Felt) -> Felt {
-        // Hata Kontrolü: Depozit miktarı sıfırdan büyük olmalıdır
+    fn bank_deposit(&mut self, user_key: Word, amount: Felt) -> Felt { // <-- bank_deposit yapıldı
         assert!(amount > Felt::ZERO, "Depozit miktari sifirdan buyuk olmalidir!");
 
-        // Kullanıcının mevcut bakiyesini çek (& işaretini sildik)
         let current_balance: Felt = self.balances.get(user_key);
-        
-        // Yeni bakiyeyi hesapla
         let next_balance = current_balance + amount;
-        
-        // Yeni bakiyeyi kaydet
         self.balances.set(user_key, next_balance);
-        
+
         next_balance
     }
-    
-    /// Belirtilen kullanıcının bankadaki güncel bakiyesini sorgular.
-    fn get_balance(&self, user_key: Word) -> Felt {
-        // & işaretini sildik
+
+    fn check_balance(&self, user_key: Word) -> Felt {
         self.balances.get(user_key)
     }
 }
