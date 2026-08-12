@@ -4,38 +4,19 @@ import { Wallet, Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft }
 // Miden resmi cüzdan kancasını içe aktarıyoruz
 import { useWallet } from '@miden-sdk/miden-wallet-adapter';
 
-// Deployed Contract Adreslerimiz (Dün ve bugün canlı ağa aldığımız resmi adresler!)
+// Deployed Contract Adreslerimiz (Canlı ağa aldığımız resmi adresler!)
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b";
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9";
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
-const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; // Canlı SKS Faucet ID'miz yapıldı!
+const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; 
 
 export default function App() {
-  // Miden Wallet Adapter'ın sunduğu durum değişkenlerini çağırıyoruz
-  const { wallet, address, connected, connect, disconnect } = useWallet();
+  // Kullanılmayan 'wallet' değişkeni temizlendi
+  const { address, connected, connect, disconnect } = useWallet();
 
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  // Bankaya Para Yatırma Simülasyonu
-  const handleBankDeposit = async () => {
-    if (!depositAmount) return;
-    setIsProcessing(true);
-    setStatusMessage("Compiling ZK Deposit Note and signing transaction...");
-    
-    try {
-      setTimeout(() => {
-        setStatusMessage(`Successfully minted Deposit Note of ${depositAmount} SKS! Deployed to Bank Account: ${BANK_CONTRACT_ID}`);
-        setIsProcessing(false);
-      }, 3000);
-    } catch (error) {
-      setStatusMessage("Transaction failed.");
-      setIsProcessing(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -62,7 +43,6 @@ export default function App() {
         ) : (
           <button 
             onClick={() => connect()}
-            disabled={isProcessing}
             className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-5 py-2.5 rounded-full transition-all duration-300 shadow-lg shadow-orange-500/20 active:scale-95"
           >
             <Wallet className="h-4 w-4" />
@@ -81,7 +61,7 @@ export default function App() {
             <p className="text-xs text-slate-400 font-mono">Faucet Account ID: {SKS_FAUCET_ID}</p>
           </div>
           <button 
-            disabled={!connected || isProcessing}
+            disabled={!connected}
             className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
           >
             Claim 100 SKS from Faucet
@@ -140,7 +120,7 @@ export default function App() {
                   />
                   <button 
                     onClick={handleBankDeposit}
-                    disabled={!connected || isProcessing}
+                    disabled={!connected}
                     className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3 rounded-xl transition duration-200 text-sm"
                   >
                     Deposit Funds
@@ -158,7 +138,7 @@ export default function App() {
                     className="bg-slate-950 border border-slate-800 focus:border-amber-500 outline-none rounded-xl px-4 py-3 text-sm transition font-mono"
                   />
                   <button 
-                    disabled={!connected || isProcessing}
+                    disabled={!connected}
                     className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 font-semibold py-3 rounded-xl border border-slate-700 transition duration-200 text-sm"
                   >
                     Withdraw Funds
@@ -185,7 +165,7 @@ export default function App() {
                   <span className="font-mono text-amber-500 font-semibold">50 Blocks (~50 Minutes)</span>
                 </div>
                 <button 
-                  disabled={!connected || isProcessing}
+                  disabled={!connected}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Create Time-Locked Deposit (100 SKS)
@@ -207,7 +187,7 @@ export default function App() {
 
               <div className="bg-slate-900/40 border border-slate-800/60 p-6 rounded-2xl flex flex-col space-y-4">
                 <button 
-                  disabled={!connected || isProcessing}
+                  disabled={!connected}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Trigger P2P Escrow Swap (50 SKS ⇋ 5 MIDEN)
