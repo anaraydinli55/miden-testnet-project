@@ -3,19 +3,21 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Miden Wallet Adapter kütüphanelerini içe aktarıyoruz
-import { WalletProvider, MidenWalletAdapter } from '@miden-sdk/miden-wallet-adapter';
+// Miden Wallet Adapter ve Resmi Stil dosyasını içe aktarıyoruz
+import { WalletProvider, WalletModalProvider, MidenWalletAdapter } from '@miden-sdk/miden-wallet-adapter';
+import '@miden-sdk/miden-wallet-adapter/styles.css'; // <-- Stil dosyası eklendi!
 
-// SAKASENA Portal uygulamamız için adaptörü tanımlıyoruz
 const wallets = [
   new MidenWalletAdapter({ appName: 'SAKASENA SKS Portal' }),
 ];
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* Uygulamamızı Miden Wallet sağlayıcısı ile sarmalıyoruz */}
     <WalletProvider wallets={wallets} autoConnect={true}>
-      <App />
+      {/* Bağlantı penceresi sağlayıcısını ekledik */}
+      <WalletModalProvider>
+        <App />
+      </WalletModalProvider>
     </WalletProvider>
   </StrictMode>
 );

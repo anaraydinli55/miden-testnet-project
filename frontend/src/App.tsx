@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { Wallet, Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
 
-// Miden resmi cüzdan kancasını içe aktarıyoruz
-import { useWallet } from '@miden-sdk/miden-wallet-adapter';
+// useWallet kancasını ve Miden'ın resmi şık Butonunu içe aktarıyoruz
+import { useWallet, WalletMultiButton } from '@miden-sdk/miden-wallet-adapter';
 
 // Deployed Contract Adreslerimiz (Canlı ağa aldığımız resmi adresler!)
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b";
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9";
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
-const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; // Canlı SKS Faucet ID'miz yapıldı!
+const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; 
 
 export default function App() {
-  // Miden Wallet Adapter'ın sunduğu durum değişkenlerini çağırıyoruz
-  const { address, connected, connect, disconnect } = useWallet();
+  // Cüzdan durumunu sorguluyoruz
+  const { connected } = useWallet();
 
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   
-  // TypeScript derleyicisini mutlu etmek için durumları (states) geri ekledik
+  // İnteraktif durumları geri getirdik
   const [statusMessage, setStatusMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -50,26 +50,10 @@ export default function App() {
           </span>
         </div>
         
-        {/* Cüzdan Durumuna göre buton değişimi */}
-        {connected && address ? (
-          <div 
-            onClick={() => disconnect()}
-            className="flex items-center space-x-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700 cursor-pointer hover:bg-slate-700/80 transition"
-          >
-            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-xs font-mono text-slate-300">
-              {address.slice(0, 12)}...{address.slice(-6)}
-            </span>
-          </div>
-        ) : (
-          <button 
-            onClick={() => connect()}
-            className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-5 py-2.5 rounded-full transition-all duration-300 shadow-lg shadow-orange-500/20 active:scale-95"
-          >
-            <Wallet className="h-4 w-4" />
-            <span>Connect Miden Wallet</span>
-          </button>
-        )}
+        {/* Miden'ın resmi, harika görünümlü, tam otomatik çoklu bağlantı butonunu ekliyoruz! */}
+        <div className="miden-wallet-button">
+          <WalletMultiButton />
+        </div>
       </header>
 
       {/* Main Content */}
