@@ -1,0 +1,15 @@
+[package]
+name = "swap_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:swap-note/miden-swap-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+escrow-contract = { path = "../escrow-contract" }
+
+[package.metadata.miden.dependencies]
+escrow-contract = { wit = "../escrow-contract/target/generated-wit/" }
