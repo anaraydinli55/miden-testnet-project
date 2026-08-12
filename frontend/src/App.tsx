@@ -1,58 +1,32 @@
 import { useState } from 'react';
 import { Wallet, Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
 
+// Miden resmi cüzdan kancasını içe aktarıyoruz
+import { useWallet } from '@miden-sdk/miden-wallet-adapter';
+
 // Deployed Contract Adreslerimiz (Dün ve bugün canlı ağa aldığımız resmi adresler!)
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b";
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9";
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
-const SKS_FAUCET_ID = "0x31dc7ded4087c4b12f63eb9ed65aac";
+const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; // Canlı SKS Faucet ID'miz yapıldı!
 
 export default function App() {
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletConnectedAddress] = useState("");
+  // Miden Wallet Adapter'ın sunduğu durum değişkenlerini çağırıyoruz
+  const { wallet, address, connected, connect, disconnect } = useWallet();
+
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // 1. Miden Wallet Chrome Eklentisini Bağlama Fonksiyonu (Wallet Connection)
-  const connectWallet = async () => {
-    setIsProcessing(true);
-    try {
-      // @ts-ignore (Miden eklentisi tarayıcıya pencere seviyesinde bir provider enjekte eder)
-      if (window.miden) {
-        // @ts-ignore
-        const accounts = await window.miden.request({ method: 'miden_requestAccounts' });
-        setWalletConnectedAddress(accounts[0]);
-        setWalletConnected(true);
-        setStatusMessage("Miden Wallet connected successfully!");
-      } else {
-        setStatusMessage("Miden Wallet extension not found. Please install the extension!");
-      }
-    } catch (error) {
-      setStatusMessage("Failed to connect wallet.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // 2. Bankaya Para Yatırma (SKS Token Deposit Note Üretimi)
+  // Bankaya Para Yatırma Simülasyonu
   const handleBankDeposit = async () => {
     if (!depositAmount) return;
     setIsProcessing(true);
     setStatusMessage("Compiling ZK Deposit Note and signing transaction...");
     
     try {
-      // Gerçek dApp'lerde arka planda @miden-sdk/miden-sdk şu şekilde not üretir:
-      /*
-      const txRequest = new TransactionRequestBuilder()
-        .ownOutputNotes([depositNote])
-        .build();
-      await window.miden.request({ method: 'miden_sendTransaction', params: [txRequest] });
-      */
-      
-      // Simülasyon Geri Bildirimi
       setTimeout(() => {
         setStatusMessage(`Successfully minted Deposit Note of ${depositAmount} SKS! Deployed to Bank Account: ${BANK_CONTRACT_ID}`);
         setIsProcessing(false);
@@ -74,16 +48,20 @@ export default function App() {
           </span>
         </div>
         
-        {walletConnected ? (
-          <div className="flex items-center space-x-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700">
+        {/* Cüzdan Durumuna göre buton değişimi */}
+        {connected && address ? (
+          <div 
+            onClick={() => disconnect()}
+            className="flex items-center space-x-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700 cursor-pointer hover:bg-slate-700/80 transition"
+          >
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             <span className="text-xs font-mono text-slate-300">
-              {walletAddress.slice(0, 12)}...{walletAddress.slice(-6)}
+              {address.slice(0, 12)}...{address.slice(-6)}
             </span>
           </div>
         ) : (
           <button 
-            onClick={connectWallet}
+            onClick={() => connect()}
             disabled={isProcessing}
             className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-5 py-2.5 rounded-full transition-all duration-300 shadow-lg shadow-orange-500/20 active:scale-95"
           >
@@ -103,7 +81,7 @@ export default function App() {
             <p className="text-xs text-slate-400 font-mono">Faucet Account ID: {SKS_FAUCET_ID}</p>
           </div>
           <button 
-            disabled={!walletConnected || isProcessing}
+            disabled={!connected || isProcessing}
             className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
           >
             Claim 100 SKS from Faucet
@@ -162,7 +140,7 @@ export default function App() {
                   />
                   <button 
                     onClick={handleBankDeposit}
-                    disabled={!walletConnected || isProcessing}
+                    disabled={!connected || isProcessing}
                     className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3 rounded-xl transition duration-200 text-sm"
                   >
                     Deposit Funds
@@ -180,7 +158,7 @@ export default function App() {
                     className="bg-slate-950 border border-slate-800 focus:border-amber-500 outline-none rounded-xl px-4 py-3 text-sm transition font-mono"
                   />
                   <button 
-                    disabled={!walletConnected || isProcessing}
+                    disabled={!connected || isProcessing}
                     className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 font-semibold py-3 rounded-xl border border-slate-700 transition duration-200 text-sm"
                   >
                     Withdraw Funds
@@ -207,7 +185,7 @@ export default function App() {
                   <span className="font-mono text-amber-500 font-semibold">50 Blocks (~50 Minutes)</span>
                 </div>
                 <button 
-                  disabled={!walletConnected || isProcessing}
+                  disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Create Time-Locked Deposit (100 SKS)
@@ -229,7 +207,7 @@ export default function App() {
 
               <div className="bg-slate-900/40 border border-slate-800/60 p-6 rounded-2xl flex flex-col space-y-4">
                 <button 
-                  disabled={!walletConnected || isProcessing}
+                  disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Trigger P2P Escrow Swap (50 SKS ⇋ 5 MIDEN)
@@ -239,10 +217,15 @@ export default function App() {
           )}
 
           {/* Status Bar */}
-          {statusMessage && (
+          {connected ? (
             <div className="mt-8 p-4 bg-slate-950 border border-slate-800/80 rounded-xl flex items-start space-x-3 text-xs text-slate-400 font-mono animate-fade-in">
-              {isProcessing ? <RefreshCw className="h-4 w-4 text-amber-500 animate-spin flex-shrink-0" /> : <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />}
-              <span>{statusMessage}</span>
+              <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+              <span>Wallet connected successfully! Ready to mint, claim, and swap on Miden zkVM.</span>
+            </div>
+          ) : (
+            <div className="mt-8 p-4 bg-slate-950 border border-slate-800/80 rounded-xl flex items-start space-x-3 text-xs text-slate-400 font-mono animate-fade-in">
+              <RefreshCw className="h-4 w-4 text-amber-500 animate-spin flex-shrink-0" />
+              <span>Please connect your Miden Wallet extension in the top right corner.</span>
             </div>
           )}
 
