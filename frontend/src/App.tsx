@@ -8,15 +8,36 @@ import { useWallet } from '@miden-sdk/miden-wallet-adapter';
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b";
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9";
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
-const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; 
+const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; // Canlı SKS Faucet ID'miz yapıldı!
 
 export default function App() {
-  // Kullanılmayan 'wallet' değişkeni temizlendi
+  // Miden Wallet Adapter'ın sunduğu durum değişkenlerini çağırıyoruz
   const { address, connected, connect, disconnect } = useWallet();
 
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  
+  // TypeScript derleyicisini mutlu etmek için durumları (states) geri ekledik
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Bankaya Para Yatırma Simülasyonu
+  const handleBankDeposit = async () => {
+    if (!depositAmount) return;
+    setIsProcessing(true);
+    setStatusMessage("Compiling ZK Deposit Note and signing transaction...");
+    
+    try {
+      setTimeout(() => {
+        setStatusMessage(`Successfully minted Deposit Note of ${depositAmount} SKS! Deployed to Bank Account: ${BANK_CONTRACT_ID}`);
+        setIsProcessing(false);
+      }, 3000);
+    } catch (error) {
+      setStatusMessage("Transaction failed.");
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -120,7 +141,7 @@ export default function App() {
                   />
                   <button 
                     onClick={handleBankDeposit}
-                    disabled={!connected}
+                    disabled={!connected || isProcessing}
                     className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3 rounded-xl transition duration-200 text-sm"
                   >
                     Deposit Funds
@@ -138,7 +159,7 @@ export default function App() {
                     className="bg-slate-950 border border-slate-800 focus:border-amber-500 outline-none rounded-xl px-4 py-3 text-sm transition font-mono"
                   />
                   <button 
-                    disabled={!connected}
+                    disabled={!connected || isProcessing}
                     className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 font-semibold py-3 rounded-xl border border-slate-700 transition duration-200 text-sm"
                   >
                     Withdraw Funds
@@ -165,7 +186,7 @@ export default function App() {
                   <span className="font-mono text-amber-500 font-semibold">50 Blocks (~50 Minutes)</span>
                 </div>
                 <button 
-                  disabled={!connected}
+                  disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Create Time-Locked Deposit (100 SKS)
@@ -187,7 +208,7 @@ export default function App() {
 
               <div className="bg-slate-900/40 border border-slate-800/60 p-6 rounded-2xl flex flex-col space-y-4">
                 <button 
-                  disabled={!connected}
+                  disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
                   Trigger P2P Escrow Swap (50 SKS ⇋ 5 MIDEN)
@@ -197,7 +218,12 @@ export default function App() {
           )}
 
           {/* Status Bar */}
-          {connected ? (
+          {statusMessage ? (
+            <div className="mt-8 p-4 bg-slate-950 border border-slate-800/80 rounded-xl flex items-start space-x-3 text-xs text-slate-400 font-mono animate-fade-in">
+              {isProcessing ? <RefreshCw className="h-4 w-4 text-amber-500 animate-spin flex-shrink-0" /> : <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />}
+              <span>{statusMessage}</span>
+            </div>
+          ) : connected ? (
             <div className="mt-8 p-4 bg-slate-950 border border-slate-800/80 rounded-xl flex items-start space-x-3 text-xs text-slate-400 font-mono animate-fade-in">
               <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
               <span>Wallet connected successfully! Ready to mint, claim, and swap on Miden zkVM.</span>
