@@ -1,3 +1,7 @@
 [MIDEN]
 id = "mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80"
 decimals = 8
+
+[SKS]
+id = "mtst1azdv8desau9f95fv4lh99vygqcu92elk"
+decimals = 8

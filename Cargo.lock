@@ -1191,6 +1191,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "escrow_contract"
+version = "0.1.0"
+dependencies = [
+ "miden",
+]
+
+[[package]]
 name = "fallible-iterator"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

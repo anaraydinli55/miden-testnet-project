@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "integration"
-, "contracts/bank-account", "contracts/deposit-note", "contracts/withdraw-note", "contracts/ballot-box", "contracts/vote-note", "contracts/time-lock-vault", "contracts/vault-deposit-note", "contracts/vault-withdraw-note"]
+, "contracts/bank-account", "contracts/deposit-note", "contracts/withdraw-note", "contracts/ballot-box", "contracts/vote-note", "contracts/time-lock-vault", "contracts/vault-deposit-note", "contracts/vault-withdraw-note", "contracts/escrow-contract"]
 exclude = [
     "contracts/",
 ]
