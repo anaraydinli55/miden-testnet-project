@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wallet, Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
+import { Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
 
 // useWallet kancasını ve Miden'ın resmi şık Butonunu içe aktarıyoruz
 import { useWallet, WalletMultiButton } from '@miden-sdk/miden-wallet-adapter';
