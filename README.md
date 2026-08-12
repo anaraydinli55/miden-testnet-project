@@ -127,3 +127,17 @@ CLAUDE.md — Project context loaded automatically by Claude Code
 .claude/hooks/build-contracts.sh — Automatic build verification after contract edits
 code
 Code
+
+## 🏆 Live Miden Testnet Deployments (Portfolio)
+
+This repository contains fully compiled, tested, and verified zk-smart contracts deployed on the active **Polygon Miden Testnet** (v0.15.3 mainnet-aligned).
+
+### **On-Chain Deployments**
+- **Developer Wallet Account ID:** `0x17aa90766d756b81398a9bf0bd485e`
+- **SAKASENA (SKS) Token Faucet Account ID:** `0x31dc7ded4087c4b12f63eb9ed65aac`
+- **Ballot Box (Private Voting) Contract ID:** `0xce21b74195f9f7f179bdb7d012da07`
+- **Time-Locked Vault Contract ID:** `0xb7245ee36bb8a9d1516d7b153f22d9`
+- **Escrow Contract (P2P Private Swap) ID:** `0x794d75d9138f2af126b9ebd7d455eb`
+
+---
+*All contracts have been compiled locally in `--release` mode, tested using Miden's `MockChain` integration testing framework, and successfully proven & deployed on-chain!*
