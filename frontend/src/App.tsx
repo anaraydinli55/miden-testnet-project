@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Wallet, Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
 
 // Deployed Contract Adreslerimiz (Dün ve bugün canlı ağa aldığımız resmi adresler!)
