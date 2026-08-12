@@ -11,7 +11,7 @@ const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
 const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; 
 
 export default function App() {
-  const { address, connected } = useWallet();
+  const { connected } = useWallet();
 
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
