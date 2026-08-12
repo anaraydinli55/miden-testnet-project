@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Coins, Lock, Landmark, CheckCircle, RefreshCw, ArrowRightLeft } from 'lucide-react';
 
-// useWallet kancasını ve Miden'ın resmi şık Butonunu içe aktarıyoruz
+// Miden resmi cüzdan kancasını içe aktarıyoruz
 import { useWallet, WalletMultiButton } from '@miden-sdk/miden-wallet-adapter';
 
 // Deployed Contract Adreslerimiz (Canlı ağa aldığımız resmi adresler!)
@@ -11,26 +11,85 @@ const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb";
 const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"; 
 
 export default function App() {
-  // Cüzdan durumunu sorguluyoruz
-  const { connected } = useWallet();
+  const { address, connected } = useWallet();
 
   const [activeTab, setActiveTab] = useState<'bank' | 'vault' | 'escrow'>('bank');
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   
-  // İnteraktif durumları geri getirdik
+  // İnteraktif durumları yöneteceğimiz durumlar
   const [statusMessage, setStatusMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Bankaya Para Yatırma Simülasyonu
+  // 1. Musluktan Token Basma (Claim Faucet) Simülasyonu
+  const handleClaimFaucet = async () => {
+    setIsProcessing(true);
+    setStatusMessage("Connecting to SKS Faucet contract on Miden Testnet... Minting 100 SKS...");
+    try {
+      setTimeout(() => {
+        setStatusMessage(`SUCCESS! 100 SKS tokens successfully minted and sent to your wallet as a Public Note! (Faucet: ${SKS_FAUCET_ID})`);
+        setIsProcessing(false);
+      }, 3000);
+    } catch (error) {
+      setStatusMessage("Failed to claim from Faucet.");
+      setIsProcessing(false);
+    }
+  };
+
+  // 2. Bankaya Para Yatırma (Deposit) Simülasyonu
   const handleBankDeposit = async () => {
     if (!depositAmount) return;
     setIsProcessing(true);
-    setStatusMessage("Compiling ZK Deposit Note and signing transaction...");
-    
+    setStatusMessage(`Compiling ZK Deposit Note and signing transaction for ${depositAmount} SKS...`);
     try {
       setTimeout(() => {
-        setStatusMessage(`Successfully minted Deposit Note of ${depositAmount} SKS! Deployed to Bank Account: ${BANK_CONTRACT_ID}`);
+        setStatusMessage(`SUCCESS! Successfully deposited ${depositAmount} SKS! Deployed to Bank Account: ${BANK_CONTRACT_ID}`);
+        setIsProcessing(false);
+      }, 3000);
+    } catch (error) {
+      setStatusMessage("Transaction failed.");
+      setIsProcessing(false);
+    }
+  };
+
+  // 3. Bankadan Para Çekme (Withdraw) Simülasyonu
+  const handleBankWithdraw = async () => {
+    if (!withdrawAmount) return;
+    setIsProcessing(true);
+    setStatusMessage(`Signing ZK Withdraw transaction for ${withdrawAmount} SKS from Bank...`);
+    try {
+      setTimeout(() => {
+        setStatusMessage(`SUCCESS! Successfully withdrew ${withdrawAmount} SKS from Bank contract! (Tx ID: 0x8f...ef)`);
+        setIsProcessing(false);
+      }, 3000);
+    } catch (error) {
+      setStatusMessage("Transaction failed.");
+      setIsProcessing(false);
+    }
+  };
+
+  // 4. Zaman Kilitli Kasa (Time-Lock Vault) Simülasyonu
+  const handleCreateTimeLock = async () => {
+    setIsProcessing(true);
+    setStatusMessage("Locking 100 SKS inside the Vesting Vault... Calculating target unlock block...");
+    try {
+      setTimeout(() => {
+        setStatusMessage(`SUCCESS! 100 SKS securely locked inside Time-Lock Vault: ${TIMELOCK_VAULT_ID}. Unlock target set to 50 blocks from now.`);
+        setIsProcessing(false);
+      }, 3000);
+    } catch (error) {
+      setStatusMessage("Transaction failed.");
+      setIsProcessing(false);
+    }
+  };
+
+  // 5. Escrow Mübadele (P2P Swap) Simülasyonu
+  const handleTriggerEscrow = async () => {
+    setIsProcessing(true);
+    setStatusMessage("Initiating decentralized P2P Escrow Swap... Verification of deposits on-chain...");
+    try {
+      setTimeout(() => {
+        setStatusMessage(`SUCCESS! P2P Escrow Swap executed successfully! 50 SKS privately exchanged for 5 MIDEN under Escrow: ${ESCROW_CONTRACT_ID}`);
         setIsProcessing(false);
       }, 3000);
     } catch (error) {
@@ -50,7 +109,7 @@ export default function App() {
           </span>
         </div>
         
-        {/* Miden'ın resmi, harika görünümlü, tam otomatik çoklu bağlantı butonunu ekliyoruz! */}
+        {/* Miden'ın resmi Çoklu Bağlantı Butonu */}
         <div className="miden-wallet-button">
           <WalletMultiButton />
         </div>
@@ -66,7 +125,8 @@ export default function App() {
             <p className="text-xs text-slate-400 font-mono">Faucet Account ID: {SKS_FAUCET_ID}</p>
           </div>
           <button 
-            disabled={!connected}
+            onClick={handleClaimFaucet}
+            disabled={!connected || isProcessing}
             className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 px-6 py-3 rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
           >
             Claim 100 SKS from Faucet
@@ -143,6 +203,7 @@ export default function App() {
                     className="bg-slate-950 border border-slate-800 focus:border-amber-500 outline-none rounded-xl px-4 py-3 text-sm transition font-mono"
                   />
                   <button 
+                    onClick={handleBankWithdraw}
                     disabled={!connected || isProcessing}
                     className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 font-semibold py-3 rounded-xl border border-slate-700 transition duration-200 text-sm"
                   >
@@ -170,6 +231,7 @@ export default function App() {
                   <span className="font-mono text-amber-500 font-semibold">50 Blocks (~50 Minutes)</span>
                 </div>
                 <button 
+                  onClick={handleCreateTimeLock}
                   disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
@@ -192,6 +254,7 @@ export default function App() {
 
               <div className="bg-slate-900/40 border border-slate-800/60 p-6 rounded-2xl flex flex-col space-y-4">
                 <button 
+                  onClick={handleTriggerEscrow}
                   disabled={!connected || isProcessing}
                   className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-semibold py-3.5 rounded-xl transition duration-200 text-sm shadow-md"
                 >
