@@ -10,46 +10,80 @@ pub struct EscrowStorage {
     pub deposits: StorageMap<Word, Felt>,
 }
 
-// 2. Mübadilə müqaviləsinin arayüzü (Trait)
+// 2. Mübadilə müqaviləsinin arayüzü (Trait) - SKS ve USDCx fonksiyonları eklendi
 #[component]
 pub trait EscrowContract {
-    fn deposit_asset(&mut self, party_key: Word, amount: Felt) -> Felt;
-    fn execute_swap(&mut self, party_a: Word, party_b: Word) -> Felt;
-    fn get_deposit(&self, party_key: Word) -> Felt;
+    fn deposit_sks(&mut self, party_key: Word, amount: Felt) -> Felt;
+    fn deposit_usdcx(&mut self, party_key: Word, amount: Felt) -> Felt;
+    fn execute_sks_usdcx_swap(&mut self, party_a: Word, party_b: Word) -> Felt;
+    fn get_sks_deposit(&self, party_key: Word) -> Felt;
+    fn get_usdcx_deposit(&self, party_key: Word) -> Felt;
 }
 
 // 3. Trait-in depolama sahəmiz üzərində icrası
 #[component]
 impl EscrowContract for EscrowStorage {
-    /// İstifadəçinin əmanətini qəbul edir və StorageMap-ə qeyd edir.
-    fn deposit_asset(&mut self, party_key: Word, amount: Felt) -> Felt {
+    /// Tərəfin SKS əmanətini qəbul edir.
+    fn deposit_sks(&mut self, party_key: Word, amount: Felt) -> Felt {
         assert!(amount > Felt::ZERO, "Emanet miktari sifirdan buyuk olmalidir!");
 
-        let current: Felt = self.deposits.get(party_key);
+        // SKS için unikal bir anahtar silsiləsi qururuq (Dizinin son elemanını 1 yapıyoruz)
+        let mut key = party_key;
+        key[3] = Felt::from_u32(1);
+
+        let current: Felt = self.deposits.get(key);
         let next = current + amount;
-        self.deposits.set(party_key, next);
+        self.deposits.set(key, next);
 
         next
     }
 
-    /// Hər iki tərəf əmanəti yatırdıqda gizli mübadiləni icra edir.
-    /// Mübadilə uğurlu olduqda 1 (Felt) geri qaytarır.
-    fn execute_swap(&mut self, party_a: Word, party_b: Word) -> Felt {
-        let deposit_a = self.deposits.get(party_a);
-        let deposit_b = self.deposits.get(party_b);
+    /// Tərəfin USDCx əmanətini qəbul edir.
+    fn deposit_usdcx(&mut self, party_key: Word, amount: Felt) -> Felt {
+        assert!(amount > Felt::ZERO, "Emanet miktari sifirdan buyuk olmalidir!");
 
-        // Hata Kontrolü: İki tərəfin də pul yatırdığını ZK səviyyəsində yoxlayırıq!
-        assert!(deposit_a > Felt::ZERO, "Taraf A henüz emanet yatirmadi!");
-        assert!(deposit_b > Felt::ZERO, "Taraf B henüz emanet yatirmadi!");
+        // USDCx için unikal bir anahtar silsiləsi qururuq (Dizinin son elemanını 2 yapıyoruz)
+        let mut key = party_key;
+        key[3] = Felt::from_u32(2);
 
-        // Mübadiləni depoda icra edirik (Simulyasiya olaraq emanetləri sıfırlayırıq)
-        self.deposits.set(party_a, Felt::ZERO);
-        self.deposits.set(party_b, Felt::ZERO);
+        let current: Felt = self.deposits.get(key);
+        let next = current + amount;
+        self.deposits.set(key, next);
 
-        Felt::from_u32(1) // 1 = Uğurlu mübadilə təsdiqi!
+        next
     }
 
-    fn get_deposit(&self, party_key: Word) -> Felt {
-        self.deposits.get(party_key)
+    /// Hər iki tərəf əmanəti (SKS ve USDCx) yatırdıqda gizli mübadiləni icra edir.
+    fn execute_sks_usdcx_swap(&mut self, party_a: Word, party_b: Word) -> Felt {
+        let mut key_a_sks = party_a;
+        key_a_sks[3] = Felt::from_u32(1);
+
+        let mut key_b_usdcx = party_b;
+        key_b_usdcx[3] = Felt::from_u32(2);
+
+        let deposit_a = self.deposits.get(key_a_sks);
+        let deposit_b = self.deposits.get(key_b_usdcx);
+
+        // ZK-Yoxlaması: A tərəfi SKS, B tərəfi isə USDCx yatırmalıdır!
+        assert!(deposit_a > Felt::ZERO, "Taraf A henüz SKS emanet etmedi!");
+        assert!(deposit_b > Felt::ZERO, "Taraf B henüz USDCx emanet etmedi!");
+
+        // Mübadiləni depoda icra edirik (əmanətləri sıfırlayırıq)
+        self.deposits.set(key_a_sks, Felt::ZERO);
+        self.deposits.set(key_b_usdcx, Felt::ZERO);
+
+        Felt::from_u32(1) // 1 = Uğurlu ZK mübadilə təsdiqi!
+    }
+
+    fn get_sks_deposit(&self, party_key: Word) -> Felt {
+        let mut key = party_key;
+        key[3] = Felt::from_u32(1);
+        self.deposits.get(key)
+    }
+
+    fn get_usdcx_deposit(&self, party_key: Word) -> Felt {
+        let mut key = party_key;
+        key[3] = Felt::from_u32(2);
+        self.deposits.get(key)
     }
 }
