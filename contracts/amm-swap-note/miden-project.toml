@@ -1,0 +1,15 @@
+[package]
+name = "amm_swap_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:amm-swap-note/miden-amm-swap-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+amm-pool = { path = "../amm-pool" }
+
+[package.metadata.miden.dependencies]
+amm-pool = { wit = "../amm-pool/target/generated-wit/" }
