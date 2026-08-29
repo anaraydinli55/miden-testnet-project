@@ -29,3 +29,7 @@ relayer/*.log
 relayer/relayer_bg*.log
 relayer/relayer_debug*.log
 relayer/relayer_final*.log
+
+# Relayer DB
+relayer/*.db
+relayer/*.db-journal
