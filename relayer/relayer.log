@@ -1,0 +1,39 @@
+warning: fields `address` and `topics` are never read
+  --> src/main.rs:38:5
+   |
+37 | struct EvmLog {
+   |        ------ fields in this struct
+38 |     address: String,
+   |     ^^^^^^^
+39 |     topics: Vec<String>,
+   |     ^^^^^^
+   |
+   = note: `EvmLog` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: structure field `blockNumber` should have a snake case name
+  --> src/main.rs:41:5
+   |
+41 |     blockNumber: String,
+   |     ^^^^^^^^^^^ help: convert the identifier to snake case: `block_number`
+   |
+   = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: structure field `transactionHash` should have a snake case name
+  --> src/main.rs:42:5
+   |
+42 |     transactionHash: String,
+   |     ^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `transaction_hash`
+
+warning: `sakasena-relayer` (bin "relayer") generated 3 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.84s
+     Running `target/debug/relayer`
+[2026-08-29T13:40:33Z INFO  relayer] 🚀 SAKASENA Bridge Relayer starting...
+[2026-08-29T13:40:33Z INFO  relayer] Config:
+[2026-08-29T13:40:33Z INFO  relayer]   Miden RPC: https://rpc.testnet.miden.io
+[2026-08-29T13:40:33Z INFO  relayer]   EVM RPC: https://eth-sepolia.g.alchemy....
+[2026-08-29T13:40:33Z INFO  relayer]   EVM Bridge: 0x90cbAe500C2c008B58656f474d4e35F5B7A7996a
+[2026-08-29T13:40:33Z INFO  relayer]   Miden Bridge: 0x5eb65e512ab979911ec04e6798ead0
+[2026-08-29T13:40:33Z INFO  relayer]   Relayer: 0xf8d59231bD1c74b8878cCF244C4dFFf412C872F5
+[2026-08-29T13:40:33Z INFO  relayer]   Start Block: 11586000
+[2026-08-29T13:40:33Z INFO  relayer] 🔄 Starting event polling loop...

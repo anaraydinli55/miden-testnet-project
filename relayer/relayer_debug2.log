@@ -1,0 +1,83 @@
+warning: fields `address` and `topics` are never read
+  --> src/main.rs:40:5
+   |
+39 | struct EvmLog {
+   |        ------ fields in this struct
+40 |     address: String,
+   |     ^^^^^^^
+41 |     topics: Vec<String>,
+   |     ^^^^^^
+   |
+   = note: `EvmLog` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sakasena-relayer` (bin "relayer") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s
+     Running `target/debug/relayer`
+[2026-08-29T14:46:27Z INFO  relayer] 🚀 SAKASENA Bridge Relayer starting...
+[2026-08-29T14:46:27Z INFO  relayer] Config:
+[2026-08-29T14:46:27Z INFO  relayer]   Miden RPC: https://rpc.testnet.miden.io
+[2026-08-29T14:46:27Z INFO  relayer]   EVM RPC: https://eth-sepolia.g.alchemy....
+[2026-08-29T14:46:27Z INFO  relayer]   EVM Bridge: 0x90cbAe500C2c008B58656f474d4e35F5B7A7996a
+[2026-08-29T14:46:27Z INFO  relayer]   Miden Bridge: 0x5eb65e512ab979911ec04e6798ead0
+[2026-08-29T14:46:27Z INFO  relayer]   Relayer: 0xf8d59231bD1c74b8878cCF244C4dFFf412C872F5
+[2026-08-29T14:46:27Z INFO  relayer] 🔄 Starting event polling loop (10-block chunks for Alchemy Free)...
+[2026-08-29T14:46:27Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:27Z DEBUG relayer] Scanning blocks 11592482-11592487 (chunk)
+[2026-08-29T14:46:27Z DEBUG relayer] Scanning blocks 11592487-11592492 (chunk)
+[2026-08-29T14:46:27Z DEBUG relayer] Updated last_block to 11592492
+[2026-08-29T14:46:32Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:32Z DEBUG relayer] Updated last_block to 11592492
+[2026-08-29T14:46:37Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:37Z DEBUG relayer] Scanning blocks 11592492-11592493 (chunk)
+[2026-08-29T14:46:37Z DEBUG relayer] Updated last_block to 11592493
+[2026-08-29T14:46:42Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:42Z DEBUG relayer] Updated last_block to 11592493
+[2026-08-29T14:46:47Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:47Z DEBUG relayer] Updated last_block to 11592493
+[2026-08-29T14:46:52Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:52Z DEBUG relayer] Scanning blocks 11592493-11592494 (chunk)
+[2026-08-29T14:46:52Z DEBUG relayer] Updated last_block to 11592494
+[2026-08-29T14:46:57Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:46:57Z DEBUG relayer] Updated last_block to 11592494
+[2026-08-29T14:47:02Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:02Z DEBUG relayer] Scanning blocks 11592494-11592495 (chunk)
+[2026-08-29T14:47:02Z DEBUG relayer] Updated last_block to 11592495
+[2026-08-29T14:47:07Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:07Z DEBUG relayer] Updated last_block to 11592495
+[2026-08-29T14:47:12Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:12Z DEBUG relayer] Scanning blocks 11592495-11592496 (chunk)
+[2026-08-29T14:47:12Z DEBUG relayer] Updated last_block to 11592496
+[2026-08-29T14:47:17Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:17Z DEBUG relayer] Updated last_block to 11592496
+[2026-08-29T14:47:22Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:22Z DEBUG relayer] Updated last_block to 11592496
+[2026-08-29T14:47:27Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:27Z DEBUG relayer] Scanning blocks 11592496-11592497 (chunk)
+[2026-08-29T14:47:27Z DEBUG relayer] Updated last_block to 11592497
+[2026-08-29T14:47:32Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:32Z DEBUG relayer] Updated last_block to 11592497
+[2026-08-29T14:47:37Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:37Z DEBUG relayer] Scanning blocks 11592497-11592498 (chunk)
+[2026-08-29T14:47:37Z DEBUG relayer] Updated last_block to 11592498
+[2026-08-29T14:47:42Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:42Z DEBUG relayer] Updated last_block to 11592498
+[2026-08-29T14:47:47Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:47Z DEBUG relayer] Updated last_block to 11592498
+[2026-08-29T14:47:52Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:52Z DEBUG relayer] Scanning blocks 11592498-11592499 (chunk)
+[2026-08-29T14:47:52Z DEBUG relayer] Updated last_block to 11592499
+[2026-08-29T14:47:57Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:47:57Z DEBUG relayer] Updated last_block to 11592499
+[2026-08-29T14:48:02Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:48:02Z DEBUG relayer] Scanning blocks 11592499-11592500 (chunk)
+[2026-08-29T14:48:02Z DEBUG relayer] Updated last_block to 11592500
+[2026-08-29T14:48:07Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:48:07Z DEBUG relayer] Updated last_block to 11592500
+[2026-08-29T14:48:12Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:48:12Z DEBUG relayer] Updated last_block to 11592500
+[2026-08-29T14:48:17Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:48:17Z DEBUG relayer] Scanning blocks 11592500-11592501 (chunk)
+[2026-08-29T14:48:17Z DEBUG relayer] Updated last_block to 11592501
+[2026-08-29T14:48:22Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T14:48:22Z DEBUG relayer] Updated last_block to 11592501

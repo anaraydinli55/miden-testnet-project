@@ -1,0 +1,35 @@
+warning: fields `address` and `topics` are never read
+  --> src/main.rs:39:5
+   |
+38 | struct EvmLog {
+   |        ------ fields in this struct
+39 |     address: String,
+   |     ^^^^^^^
+40 |     topics: Vec<String>,
+   |     ^^^^^^
+   |
+   = note: `EvmLog` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `sakasena-relayer` (bin "relayer") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.07s
+     Running `target/debug/relayer`
+[2026-08-29T13:46:33Z INFO  relayer] 🚀 SAKASENA Bridge Relayer starting...
+[2026-08-29T13:46:33Z INFO  relayer] Config:
+[2026-08-29T13:46:33Z INFO  relayer]   Miden RPC: https://rpc.testnet.miden.io
+[2026-08-29T13:46:33Z INFO  relayer]   EVM RPC: https://eth-sepolia.g.alchemy....
+[2026-08-29T13:46:33Z INFO  relayer]   EVM Bridge: 0x90cbAe500C2c008B58656f474d4e35F5B7A7996a
+[2026-08-29T13:46:33Z INFO  relayer]   Miden Bridge: 0x5eb65e512ab979911ec04e6798ead0
+[2026-08-29T13:46:33Z INFO  relayer]   Relayer: 0xf8d59231bD1c74b8878cCF244C4dFFf412C872F5
+[2026-08-29T13:46:33Z INFO  relayer]   Start Block: 11586000
+[2026-08-29T13:46:33Z INFO  relayer] 🔄 Starting event polling loop...
+[2026-08-29T13:46:33Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T13:46:34Z DEBUG relayer] EVM current block: 11592200
+[2026-08-29T13:46:34Z DEBUG relayer] Request: {"jsonrpc":"2.0","method":"eth_getLogs","params":[{"address":"0x90cbAe500C2c008B58656f474d4e35F5B7A7996a","fromBlock":"0xb0c9d0","toBlock":"0xb0e208","topics":["0x8e9f676bc0e67c2eff7217a1ba8a325009f2d8adbf22e10f841c381796ae2b01"]}],"id":2}
+[2026-08-29T13:46:34Z DEBUG relayer] Raw response: {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Under the Free tier plan, you can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0xb0c9d0, 0xb0c9d9]. Upgrade to PAYG for expanded block range."}}
+[2026-08-29T13:46:34Z ERROR relayer] RPC error: Object {"code": Number(-32600), "message": String("Under the Free tier plan, you can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0xb0c9d0, 0xb0c9d9]. Upgrade to PAYG for expanded block range.")}
+[2026-08-29T13:47:03Z DEBUG reqwest::connect] starting new connection: https://eth-sepolia.g.alchemy.com/
+[2026-08-29T13:47:03Z DEBUG relayer] EVM current block: 11592203
+[2026-08-29T13:47:03Z DEBUG relayer] Request: {"jsonrpc":"2.0","method":"eth_getLogs","params":[{"address":"0x90cbAe500C2c008B58656f474d4e35F5B7A7996a","fromBlock":"0xb0c9d0","toBlock":"0xb0e20b","topics":["0x8e9f676bc0e67c2eff7217a1ba8a325009f2d8adbf22e10f841c381796ae2b01"]}],"id":2}
+[2026-08-29T13:47:03Z DEBUG relayer] Raw response: {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Under the Free tier plan, you can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0xb0c9d0, 0xb0c9d9]. Upgrade to PAYG for expanded block range."}}
+[2026-08-29T13:47:03Z ERROR relayer] RPC error: Object {"code": Number(-32600), "message": String("Under the Free tier plan, you can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0xb0c9d0, 0xb0c9d9]. Upgrade to PAYG for expanded block range.")}
