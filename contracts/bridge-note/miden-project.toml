@@ -1,0 +1,15 @@
+[package]
+name = "bridge-note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:bridge-note/miden-bridge-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+bridge-lockbox = { path = "../bridge-lockbox" }
+
+[package.metadata.miden.dependencies]
+bridge-lockbox = { wit = "../bridge-lockbox/target/generated-wit/" }
