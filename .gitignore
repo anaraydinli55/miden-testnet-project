@@ -33,3 +33,7 @@ relayer/relayer_final*.log
 # Relayer DB
 relayer/*.db
 relayer/*.db-journal
+
+# Misc
+*.bin
+integration/*.log
