@@ -23,3 +23,9 @@ lib/
 # OS
 .DS_Store
 Thumbs.db
+
+# Relayer logs
+relayer/*.log
+relayer/relayer_bg*.log
+relayer/relayer_debug*.log
+relayer/relayer_final*.log
