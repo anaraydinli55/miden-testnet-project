@@ -8,7 +8,7 @@ const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b"
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9"
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb"
 
-const FAUCET_COOLDOWN_MS = 12 * 60 * 60 * 1000
+const FAUCET_COOLDOWN_MS = 0  // Cooldown devre disi (test icin)
 
 const BRIDGE_ABI = [
   "function mint(bytes32 midenAccountId, uint256 amount, uint256 nonce, address recipient) external",
@@ -71,7 +71,7 @@ function App() {
   const [faucetCooldown, setFaucetCooldown] = useState(0)
 
   // Miden wallet dinamik faucetId (bech32)
-  const defaultFaucetId = midenAssets[0]?.faucetId || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
+  const defaultFaucetId = 'mtst1arut8ltmq8yxzu2az9x2nsgl0qmrjh86_qr7qqq9wr6w'  // SKS Faucet ID (calisiyor)
 
   useEffect(() => {
     const mw = getMidenWallet()
@@ -171,6 +171,7 @@ function App() {
     }
     try {
       if (mw.connect) await mw.connect({ appName: 'SAKASENA Finance' })
+      console.log('Miden connected, address:', mw.address)
       setMidenConnected(true)
       setMidenAccount(toHexString(mw.address || mw.publicKey || ''))
       if (mw.requestAssets) {
@@ -244,6 +245,11 @@ function App() {
       setStatusMessage('❌ Miden Wallet bulunamadi!')
       return null
     }
+    // Eger connect yapilmamissa, once connect et
+    if (!mw.address && mw.connect) {
+      setStatusMessage('Miden Wallet baglaniyor...')
+      await mw.connect({ appName: 'SAKASENA Finance' })
+    }
     setTxHash(null)
     setMidenTxHash(null)
     setStatusMessage(description + ' - Miden Wallet onayi bekleniyor...')
@@ -251,15 +257,35 @@ function App() {
       let result
       if (type === 'send' && mw.requestSend) {
         const sendParams = {
-          recipient: params.recipient || params.to || params.address || mw.address,
+          recipient: params.recipient || params.to || params.address || mw.address,  // bech32 format
           amount: String(params.amount),
           faucetId: params.faucetId || defaultFaucetId
         }
-        console.log('requestSend params:', sendParams)
+        console.log('requestSend params:', JSON.stringify(sendParams, null, 2))
         result = await mw.requestSend(sendParams)
       } else if (type === 'consume' && mw.requestConsume) {
-        console.log('requestConsume params:', params)
-        result = await mw.requestConsume(params)
+        // Not ID'si lazim — once consumable notes'lari kontrol et
+        let noteId = params.noteId
+        if (!noteId && mw.requestConsumableNotes) {
+          try {
+            const notesRes = await mw.requestConsumableNotes()
+            const notes = notesRes?.consumableNotes || []
+            console.log('Consumable notes:', notes)
+            if (notes.length > 0) {
+              noteId = notes[0].id || notes[0].noteId || notes[0].hash || notes[0]
+            }
+          } catch (e) {
+            console.log('requestConsumableNotes failed:', e)
+          }
+        }
+        if (!noteId) {
+          setStatusMessage('❌ Tuketilecek note bulunamadi. Once deposit yapin.')
+          setLoading(false)
+          return null
+        }
+        const consumeParams = { noteId: String(noteId), amount: String(params.amount || '1') }
+        console.log('requestConsume params:', JSON.stringify(consumeParams, null, 2))
+        result = await mw.requestConsume(consumeParams)
       } else {
         setStatusMessage('❌ Miden Wallet transaction API bulunamadi.')
         return null
@@ -273,25 +299,9 @@ function App() {
         }
       }
 
-      // waitForTransaction deneyelim ama calismayabilir (Miden Wallet bug)
+      // waitForTransaction Miden Wallet'ta bug'li, kullanma
       let finalTxId = null
-      if (mw.waitForTransaction && result?.transactionId) {
-        try {
-          setStatusMessage(description + ' - TX onaylaniyor...')
-          const waitResult = await mw.waitForTransaction(result.transactionId)
-          console.log('=== waitForTransaction result ===', waitResult)
-          if (waitResult && typeof waitResult === 'object') {
-            finalTxId = waitResult.txId || waitResult.transactionId || waitResult.hash || waitResult.id || waitResult.transactionHash
-          } else if (typeof waitResult === 'string') {
-            finalTxId = waitResult
-          }
-        } catch (waitErr) {
-          console.log('waitForTransaction failed:', waitErr)
-        }
-      }
-
-      // waitForTransaction basarisiz olursa, result'tan cikart
-      if (!finalTxId && result) {
+      if (result) {
         if (typeof result === 'string') {
           finalTxId = result
         } else if (typeof result === 'object') {
@@ -339,18 +349,19 @@ function App() {
 
   const handleClaimFaucet = async () => {
     if (!midenConnected) { alert('Once Miden Wallet bagla!'); return }
-    const last = safeGetItem('sakasena_faucet_last_claim')
-    if (last) {
-      const elapsed = Date.now() - parseInt(last)
-      if (elapsed < FAUCET_COOLDOWN_MS) {
-        setStatusMessage('⏳ Faucet cooldown aktif. Kalan: ' + formatTimeLeft(FAUCET_COOLDOWN_MS - elapsed))
-        return
-      }
-    }
+    // Cooldown devre disi (test icin)
+    // const last = safeGetItem('sakasena_faucet_last_claim')
+    // if (last) {
+    //   const elapsed = Date.now() - parseInt(last)
+    //   if (elapsed < FAUCET_COOLDOWN_MS) {
+    //     setStatusMessage('⏳ Faucet cooldown aktif. Kalan: ' + formatTimeLeft(FAUCET_COOLDOWN_MS - elapsed))
+    //     return
+    //   }
+    // }
     setLoading(true)
     try {
       await sendMidenTx('send', {
-        recipient: midenAccount,
+        recipient: midenAccount,  // DİKKAT: Bu hex, bech32 olmalı
         amount: '100',
         faucetId: defaultFaucetId
       }, 'Faucet Claim (100 SKS)')
@@ -517,14 +528,10 @@ function App() {
           </div>
           <div style={{ background: '#1e293b', padding: '20px', borderRadius: '16px' }}>
             <h3 style={{ marginBottom: '12px' }}>🚰 SKS Faucet</h3>
-            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Faucet: {defaultFaucetId}</p>
-            {faucetCooldown > 0 && (
-              <p style={{ fontSize: '12px', color: '#f59e0b', marginBottom: '12px' }}>
-                ⏳ Sonraki claim: {formatTimeLeft(faucetCooldown)}
-              </p>
-            )}
-            <button className="btn btn-dep" onClick={handleClaimFaucet} disabled={!midenConnected || loading || faucetCooldown > 0} style={{ width: '100%' }}>
-              {loading ? '⏳...' : faucetCooldown > 0 ? 'Cooldown...' : 'Claim 100 SKS from Faucet'}
+            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Faucet (SKS): {defaultFaucetId}</p>
+            {/* Cooldown devre disi */}
+            <button className="btn btn-dep" onClick={handleClaimFaucet} disabled={!midenConnected || loading} style={{ width: '100%' }}>
+              {loading ? '⏳...' : 'Claim 100 SKS from Faucet'}
             </button>
           </div>
         </div>
