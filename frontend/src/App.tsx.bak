@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import './App.css'
@@ -8,8 +7,8 @@ const MIDEN_BRIDGE = '0x5eb65e512ab979911ec04e6798ead0'
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b"
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9"
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb"
-
-const FAUCET_COOLDOWN_MS = 0  // Cooldown devre disi (test icin)
+const SKS_FAUCET_ID = "0xf8b3fd7b01c861715d114ca9c11f78"
+const FAUCET_COOLDOWN_MS = 12 * 60 * 60 * 1000
 
 const BRIDGE_ABI = [
   "function mint(bytes32 midenAccountId, uint256 amount, uint256 nonce, address recipient) external",
@@ -71,9 +70,6 @@ function App() {
   const [eventsLoading, setEventsLoading] = useState(false)
   const [faucetCooldown, setFaucetCooldown] = useState(0)
 
-  // Miden wallet dinamik faucetId (bech32)
-  const defaultFaucetId = 'mtst1arut8ltmq8yxzu2az9x2nsgl0qmrjh86_qr7qqq9wr6w'  // SKS Faucet ID (calisiyor)
-
   useEffect(() => {
     const mw = getMidenWallet()
     if (!mw) return
@@ -82,11 +78,7 @@ function App() {
       setMidenConnected(true)
       setMidenAccount(toHexString(data?.address || data?.publicKey || mw.address || mw.publicKey || ''))
       if (mw.requestAssets) {
-        mw.requestAssets().then(a => {
-          const assets = a?.assets || a || []
-          setMidenAssets(assets)
-          console.log('Miden assets loaded:', assets)
-        }).catch(() => {})
+        mw.requestAssets().then(a => setMidenAssets(a?.assets || a || [])).catch(() => {})
       }
     }
     const onDisconnect = () => {
@@ -103,10 +95,7 @@ function App() {
       setMidenConnected(true)
       setMidenAccount(toHexString(mw.address || mw.publicKey || ''))
       if (mw.requestAssets) {
-        mw.requestAssets().then(a => {
-          const assets = a?.assets || a || []
-          setMidenAssets(assets)
-        }).catch(() => {})
+        mw.requestAssets().then(a => setMidenAssets(a?.assets || a || [])).catch(() => {})
       }
     }
     return () => {
@@ -172,13 +161,11 @@ function App() {
     }
     try {
       if (mw.connect) await mw.connect({ appName: 'SAKASENA Finance' })
-      console.log('Miden connected, address:', mw.address)
       setMidenConnected(true)
       setMidenAccount(toHexString(mw.address || mw.publicKey || ''))
       if (mw.requestAssets) {
-        const assetsRes = await mw.requestAssets()
-        const assets = assetsRes?.assets || assetsRes || []
-        setMidenAssets(assets)
+        const assets = await mw.requestAssets()
+        setMidenAssets(assets || [])
       }
     } catch (err) {
       setMidenError('Miden baglanti hatasi: ' + (err.message || err))
@@ -246,11 +233,6 @@ function App() {
       setStatusMessage('❌ Miden Wallet bulunamadi!')
       return null
     }
-    // Eger connect yapilmamissa, once connect et
-    if (!mw.address && mw.connect) {
-      setStatusMessage('Miden Wallet baglaniyor...')
-      await mw.connect({ appName: 'SAKASENA Finance' })
-    }
     setTxHash(null)
     setMidenTxHash(null)
     setStatusMessage(description + ' - Miden Wallet onayi bekleniyor...')
@@ -258,35 +240,13 @@ function App() {
       let result
       if (type === 'send' && mw.requestSend) {
         const sendParams = {
-          recipient: params.recipient || params.to || params.address || mw.address,  // bech32 format
+          recipient: params.recipient || params.to || params.address || mw.address,
           amount: String(params.amount),
-          faucetId: params.faucetId || defaultFaucetId
+          faucetId: params.faucetId || (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
         }
-        console.log('requestSend params:', JSON.stringify(sendParams, null, 2))
         result = await mw.requestSend(sendParams)
       } else if (type === 'consume' && mw.requestConsume) {
-        // Not ID'si lazim — once consumable notes'lari kontrol et
-        let noteId = params.noteId
-        if (!noteId && mw.requestConsumableNotes) {
-          try {
-            const notesRes = await mw.requestConsumableNotes()
-            const notes = notesRes?.consumableNotes || []
-            console.log('Consumable notes:', notes)
-            if (notes.length > 0) {
-              noteId = notes[0].id || notes[0].noteId || notes[0].hash || notes[0]
-            }
-          } catch (e) {
-            console.log('requestConsumableNotes failed:', e)
-          }
-        }
-        if (!noteId) {
-          setStatusMessage('❌ Tuketilecek note bulunamadi. Once deposit yapin.')
-          setLoading(false)
-          return null
-        }
-        const consumeParams = { noteId: String(noteId), amount: String(params.amount || '1') }
-        console.log('requestConsume params:', JSON.stringify(consumeParams, null, 2))
-        result = await mw.requestConsume(consumeParams)
+        result = await mw.requestConsume(params)
       } else {
         setStatusMessage('❌ Miden Wallet transaction API bulunamadi.')
         return null
@@ -300,9 +260,30 @@ function App() {
         }
       }
 
-      // waitForTransaction Miden Wallet'ta bug'li, kullanma
+      // waitForTransaction ile gercek TX ID'yi al
       let finalTxId = null
-      if (result) {
+      if (mw.waitForTransaction) {
+        try {
+          setStatusMessage(description + ' - TX onaylaniyor...')
+          // waitForTransaction farkli parametreler bekleyebilir
+          const waitParams = typeof result === 'object' && result !== null
+            ? (result.transactionId || result.id || result.txId || result)
+            : result
+          console.log('waitForTransaction params:', waitParams)
+          const waitResult = await mw.waitForTransaction(waitParams)
+          console.log('=== waitForTransaction result ===', waitResult)
+          if (waitResult && typeof waitResult === 'object') {
+            finalTxId = waitResult.txId || waitResult.transactionId || waitResult.hash || waitResult.id || waitResult.transactionHash
+          } else if (typeof waitResult === 'string') {
+            finalTxId = waitResult
+          }
+        } catch (waitErr) {
+          console.log('waitForTransaction failed:', waitErr)
+        }
+      }
+
+      // Eger waitForTransaction basarisiz olduysa, result'tan cikart
+      if (!finalTxId && result) {
         if (typeof result === 'string') {
           finalTxId = result
         } else if (typeof result === 'object') {
@@ -310,27 +291,22 @@ function App() {
         }
       }
 
-      // Hex hash mi yoksa UUID mi?
-      if (finalTxId && typeof finalTxId === 'string' && finalTxId.startsWith('0x') && finalTxId.length > 40) {
+      if (finalTxId && typeof finalTxId === 'string' && finalTxId.startsWith('0x') && finalTxId.length > 20) {
         setMidenTxHash(finalTxId)
         setStatusMessage('✅ ' + description + ' basarili!')
       } else if (finalTxId) {
-        // UUID - hex hash alinamadi (Miden Wallet bug)
         setMidenTxHash(null)
-        setStatusMessage('✅ ' + description + ' basarili! (TX ID: ' + finalTxId + ')')
+        setStatusMessage('✅ ' + description + ' basarili! (TX ID: ' + finalTxId.slice(0, 30) + '...)')
       } else {
         setStatusMessage('✅ ' + description + ' basarili!')
       }
 
-      // Asset'leri yenile
       if (mw.requestAssets) {
-        const assetsRes = await mw.requestAssets()
-        const assets = assetsRes?.assets || assetsRes || []
-        setMidenAssets(assets)
+        const assets = await mw.requestAssets()
+        setMidenAssets(assets || [])
       }
       return result
     } catch (err) {
-      console.error('Miden TX hatasi:', err)
       setStatusMessage('❌ ' + description + ' hatasi: ' + (err.message || err))
       throw err
     }
@@ -343,28 +319,27 @@ function App() {
       await sendMidenTx('send', {
         recipient: MIDEN_BRIDGE,
         amount: '1',
-        faucetId: defaultFaucetId
+        faucetId: (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
       }, 'Bridge Deposit (Miden -> EVM)')
     } finally { setLoading(false) }
   }
 
   const handleClaimFaucet = async () => {
     if (!midenConnected) { alert('Once Miden Wallet bagla!'); return }
-    // Cooldown devre disi (test icin)
-    // const last = safeGetItem('sakasena_faucet_last_claim')
-    // if (last) {
-    //   const elapsed = Date.now() - parseInt(last)
-    //   if (elapsed < FAUCET_COOLDOWN_MS) {
-    //     setStatusMessage('⏳ Faucet cooldown aktif. Kalan: ' + formatTimeLeft(FAUCET_COOLDOWN_MS - elapsed))
-    //     return
-    //   }
-    // }
+    const last = safeGetItem('sakasena_faucet_last_claim')
+    if (last) {
+      const elapsed = Date.now() - parseInt(last)
+      if (elapsed < FAUCET_COOLDOWN_MS) {
+        setStatusMessage('⏳ Faucet cooldown aktif. Kalan: ' + formatTimeLeft(FAUCET_COOLDOWN_MS - elapsed))
+        return
+      }
+    }
     setLoading(true)
     try {
       await sendMidenTx('send', {
-        recipient: midenAccount,  // DİKKAT: Bu hex, bech32 olmalı
+        recipient: midenAccount,
         amount: '100',
-        faucetId: defaultFaucetId
+        faucetId: (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
       }, 'Faucet Claim (100 SKS)')
       safeSetItem('sakasena_faucet_last_claim', Date.now().toString())
       setFaucetCooldown(FAUCET_COOLDOWN_MS)
@@ -379,7 +354,7 @@ function App() {
       await sendMidenTx('send', {
         recipient: BANK_CONTRACT_ID,
         amount: depositAmount,
-        faucetId: defaultFaucetId
+        faucetId: (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
       }, 'Bank Deposit (' + depositAmount + ' SKS)')
     } finally { setLoading(false) }
   }
@@ -404,7 +379,7 @@ function App() {
       await sendMidenTx('send', {
         recipient: TIMELOCK_VAULT_ID,
         amount: vaultAmount,
-        faucetId: defaultFaucetId
+        faucetId: (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
       }, 'Time-Lock Vault (' + vaultAmount + ' SKS)')
     } finally { setLoading(false) }
   }
@@ -416,7 +391,7 @@ function App() {
       await sendMidenTx('send', {
         recipient: ESCROW_CONTRACT_ID,
         amount: escrowAmount,
-        faucetId: defaultFaucetId
+        faucetId: (midenAssets[0]?.faucetId) || 'mtst1aqj93e2yvy5wdv2skadca0vuuypfnp80_qr7qqq9wr6w'
       }, 'P2P Escrow Swap (' + escrowAmount + ' SKS)')
     } finally { setLoading(false) }
   }
@@ -450,7 +425,7 @@ function App() {
         {midenError && <p style={{color:'#ef4444',fontSize:'12px',marginTop:'8px'}}>{midenError}</p>}
         {midenAssets.length > 0 && (
           <div style={{ marginTop: '8px', fontSize: '12px', color: '#94a3b8' }}>
-            Miden Assets: {midenAssets.map((a, i) => `${a.symbol || a.faucetId?.slice(0,10) || 'Token'}: ${a.amount || a.balance || 0}`).join(', ')}
+            Miden Assets: {midenAssets.map((a, i) => `${a.symbol || a.id || 'Token'}: ${a.amount || a.balance || 0}`).join(', ')}
           </div>
         )}
       </div>
@@ -529,10 +504,14 @@ function App() {
           </div>
           <div style={{ background: '#1e293b', padding: '20px', borderRadius: '16px' }}>
             <h3 style={{ marginBottom: '12px' }}>🚰 SKS Faucet</h3>
-            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Faucet (SKS): {defaultFaucetId}</p>
-            {/* Cooldown devre disi */}
-            <button className="btn btn-dep" onClick={handleClaimFaucet} disabled={!midenConnected || loading} style={{ width: '100%' }}>
-              {loading ? '⏳...' : 'Claim 100 SKS from Faucet'}
+            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Faucet: {SKS_FAUCET_ID}</p>
+            {faucetCooldown > 0 && (
+              <p style={{ fontSize: '12px', color: '#f59e0b', marginBottom: '12px' }}>
+                ⏳ Sonraki claim: {formatTimeLeft(faucetCooldown)}
+              </p>
+            )}
+            <button className="btn btn-dep" onClick={handleClaimFaucet} disabled={!midenConnected || loading || faucetCooldown > 0} style={{ width: '100%' }}>
+              {loading ? '⏳...' : faucetCooldown > 0 ? 'Cooldown...' : 'Claim 100 SKS from Faucet'}
             </button>
           </div>
         </div>
