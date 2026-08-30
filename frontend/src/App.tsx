@@ -140,8 +140,8 @@ function App() {
       const currentBlock = await provider.getBlockNumber()
       const fromBlock = Math.max(0, currentBlock - 5000)
       const filter = c.filters.Burn()
-      const events = await c.queryFilter(filter, fromBlock, currentBlock)
-      const formatted = events.reverse().map((e, i) => ({
+      const events = await c.queryFilter(filter, fromBlock, currentBlock) || []
+      const formatted = (events || []).reverse().map((e, i) => ({
         id: i,
         tx: e.transactionHash,
         amount: ethers.formatUnits(e.args.amount, 18),
