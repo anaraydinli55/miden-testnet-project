@@ -1,0 +1,12 @@
+use miden::protocol::active_account
+use miden::protocol::account_id
+use miden::core::mem
+
+@transaction_script
+pub proc main
+    # 1. Flame Towers ZK Şəkil Hash-ini yığına (stack) qoyuruq
+    push.0x03297a176cc58f2647876304c35a3146c559cfbb0e5c26592cf88d3d93593919
+
+    # 2. Hash-i yaddaşdan təmizləyib icranı təsdiqləyirik
+    dropw
+end

@@ -1,0 +1,8 @@
+"miden::standards::auth::multisig::threshold_config.threshold" = "2"
+"miden::standards::auth::multisig::threshold_config.num_approvers" = "3"
+
+"miden::standards::auth::multisig::approver_public_keys" = [
+    { key = ["0", "0", "0", "0"], value = "0x0000000000000000000000000000000000000000000000000000000000000001" },
+    { key = ["1", "0", "0", "0"], value = "0x0000000000000000000000000000000000000000000000000000000000000002" },
+    { key = ["2", "0", "0", "0"], value = "0x0000000000000000000000000000000000000000000000000000000000000003" }
+]

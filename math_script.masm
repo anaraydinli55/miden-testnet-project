@@ -1,0 +1,8 @@
+begin
+    # Yığına (stack) iki sayı koyup topla
+    push.5
+    push.10
+    add
+    # Çıkan sonucu (15) yığından temizle
+    drop
+end

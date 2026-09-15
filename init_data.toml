@@ -1,0 +1,4 @@
+[fungible-faucet-metadata]
+symbol = "SKS"
+decimals = 6
+max_supply = 1000000000000000

@@ -1,0 +1,7 @@
+@transaction_script
+pub proc main
+    push.5
+    push.10
+    add
+    drop
+end

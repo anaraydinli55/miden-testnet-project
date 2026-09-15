@@ -1,0 +1,222 @@
+import re
+
+raw_data = """
+  1.   56858 TX  mtst1aq32gfucapgeey2zznc6vvqfeqh5h4rt
+  2.   12577 TX  mtst1arpcmvvf9y99r5gd34pyynynnynx2790
+  3.   11975 TX  mtst1aqvpq8a9ytqhfvt9al20wzsrs56g83ec
+  4.   11812 TX  mtst1azm83hvhskp9jy2fk6k67q8gf5gzhjkh
+  5.   11811 TX  mtst1apnc56sdll470yg6ewujua9nncsxpncv
+  6.    1065 TX  mtst1azrrg9t9npcgqqtwg7r8v3zavygw4h5t
+  7.     291 TX  mtst1aq6rvcnpjmwj5qgx6mq3ar89xuvgcalu
+  8.     272 TX  mtst1ap4gf25l5ydx4qfty7xnda7vqgetj60l
+  9.     267 TX  mtst1aqdvn9vv0j203q2s6kkcyy90kvk00297
+ 10.     259 TX  mtst1aptjmt789tx7xq2gxp4shgcaayejzcgl
+ 11.     146 TX  mtst1aqcl5scrfe8trsfeq79dud54tuq83vns
+ 12.      97 TX  mtst1aqafrp4lg2fmzyffm0rmywzaasf5znmx
+ 13.      93 TX  mtst1apzcauehu8ggjy2eftxge4hatuc38ftw
+ 14.      71 TX  mtst1azdny2n90jf7p5t6fegjlvd4xg0uh8d6
+ 15.      40 TX  mtst1arhtgs3l0d77ryteywrwp9n3zqa7r5mt
+ 16.      39 TX  mtst1arqjnhlu8uhhr52zq6xfpcmxncg6rlza
+ 17.      38 TX  mtst1aqxgtrz8jsw0v52zmlgt5nms7qfsep73
+ 18.      35 TX  mtst1arsnqkfyetsad5ty0t0s6mf6rvpd8xey
+ 19.      27 TX  mtst1ar79p4j777wjzy27kvrtzamm9qec9rn7
+ 20.      23 TX  mtst1arq0wylqjv09eqfwfglljy7shgv8dtyx
+ 21.      22 TX  mtst1aqzdmccfrfkewqfzrmfdpph7evuzxsk2
+ 22.      21 TX  mtst1aq5axerc5jlejstunw0gm026rqsffyws
+ 23.      20 TX  mtst1apfhc9dxygr5aygc325fg3tv2ggrc5dw
+ 24.      20 TX  mtst1aqsgz7ezlpxwq5fepxlzr7u2rywfngv7
+ 25.      19 TX  mtst1aqznvf4t7ejvv5g3ttck7wx2qskplyed
+ 26.      19 TX  mtst1aqerwrzw6u0x952ygkdqnqzf5ytkscch
+ 27.      19 TX  mtst1aqdv52sf42k97qfhpqu6mkudr5wlfu47
+ 28.      16 TX  mtst1arqxg9er3xclayt95nud82jnpggl9azj
+ 29.      15 TX  mtst1aqwmdyj67qw6352srd324td4svc720n4
+ 30.      14 TX  mtst1aq7rg8539yfrhst3hy77z4r7hc4nypvv
+ 31.      14 TX  mtst1azs2prlv2kscw5g098z0nq5m4qavmayd
+ 32.      13 TX  mtst1ap7weargsp0cyyfd4kwzcwhtxyt7hd08
+ 33.      13 TX  mtst1aza66tv5998025fryuz46elangq4eddl
+ 34.      12 TX  mtst1aqakdcst2zy0y5fnk6fpvjzx2g8tqn65
+ 35.      12 TX  mtst1aqsdx6gvfdt2fq26waanem7x6g0lyn84
+ 36.      12 TX  mtst1arghjahsszdgry2p9u4pye39mu78xz5m
+ 37.      12 TX  mtst1arklk24a4ff6cy2fmryvwhdrkvx3646y
+ 38.      12 TX  mtst1ar6pedyelax8ssthph35d38y65t7amxh
+ 39.      11 TX  mtst1ap0a9ehazacjc52qf5yu9wz87uhgwhlm
+ 40.      11 TX  mtst1apjspj5v9htfay284dl2ltgk9smm9af2
+ 41.      11 TX  mtst1arwuv3gqmvtsu5gmuxyhc9hyugn2m0dz
+ 42.      11 TX  mtst1aqd9xsca4zu08q20rhke84t3evszp3rk
+ 43.      11 TX  mtst1ar9agx9surx5v5gkjcjsxxgdw5m0rz7y
+ 44.      11 TX  mtst1aqkr0pvjytukey2fnksrr6flaskjgzzw
+ 45.      11 TX  mtst1aq35m88zgeg50yg0zsuxqc4qvv7983hd
+ 46.      10 TX  mtst1armlqu2v08wrfs2vup5hdwv2qus44kry
+ 47.      10 TX  mtst1aplkrnwla4nrvsty96egmy8pgcvw68wa
+ 48.      10 TX  mtst1ar8r4exq68kj85f9vlna9p3zqgedyqdt
+ 49.       9 TX  mtst1ars0ajcrxpdcdq2nl4v2v6nfdugcp4cf
+ 50.       9 TX  mtst1aqwfg4hpd4r84st64pxj6a224vjxmlng
+ 51.       9 TX  mtst1apdk9endmugq6qty2hemd4c2l5v5kd5w
+ 52.       8 TX  mtst1azddte04f8q055ttdz8twppanyekrl2e
+ 53.       8 TX  mtst1ap9qnuf320vu6y2vq79lkc48ash3zvt7
+ 54.       8 TX  mtst1azz7luz6dxpdksgzxwfdvw0rpuc5ugq5
+ 55.       8 TX  mtst1arnu6v8z8ymml5tlp6allamsxsnrkxhj
+ 56.       8 TX  mtst1az94daqy2v5885gtws0fefe33yqkdr08
+ 57.       7 TX  mtst1az4gsfywkttr9y2haekkn4dahg3gxl80
+ 58.       7 TX  mtst1az4nstz6mav0zy26e7ahql207u9vnljj
+ 59.       7 TX  mtst1aqdp5dkl4nwvgyta3sugfkeawu54258a
+ 60.       7 TX  mtst1aq2f3m84nxlesyf6z02x7zkx9c803tqm
+ 61.       7 TX  mtst1arr0gk4q5t9tc5tx4vuaq9k96u6sky26
+ 62.       7 TX  mtst1aq4pjdzndg6g4qf4xlszr5cfhszjlhge
+ 63.       7 TX  mtst1aq6hy782gk53psfvlx5l5whe7v3lyzgx
+ 64.       7 TX  mtst1az4p3tfkqu2pty29tc5vaky27ula99hn
+ 65.       7 TX  mtst1aqj52mljvqpq8522smpevl9ymcmek33t
+ 66.       6 TX  mtst1az26c3hnh0aw5yg5cs67v7k9sg3rlmul
+ 67.       6 TX  mtst1ar4dsxqqjk885yfdgk7ulpf05cnh5tdq
+ 68.       6 TX  mtst1armdwccm9rkjgyf8gdy2rdct2q3j099c
+ 69.       6 TX  mtst1azr336xqxha4l5faq4c2298m6s777s4u
+ 70.       6 TX  mtst1apkgup5gde6xhy2jnzt6m4p2ks557jky
+ 71.       6 TX  mtst1arwawncaa2egc5fye7m8aenymqpf4t39
+ 72.       6 TX  mtst1apsgwtwgcddffygjt7z5alcsqq95kqt9
+ 73.       6 TX  mtst1az5nf8pw4ujx3st85awahd6jyslzwv4x
+ 74.       6 TX  mtst1aq0j90n20vtjysf8vtavqf3v3g6uc4dl
+ 75.       6 TX  mtst1azncsl54ccg9vq2nvfx6ycc095y095l6
+ 76.       6 TX  mtst1arcn64v273f50qgy80jd9mfz6q906dk4
+ 77.       6 TX  mtst1azy9t20mwmeqyqfpjvdhxp5v6sszq8wd
+ 78.       6 TX  mtst1aqzs6kudltnf2sf7srz08l9at59kw6vq
+ 79.       6 TX  mtst1ar4pamyhqpnv0qgefzugutqjtswyggu7
+ 80.       6 TX  mtst1ap6f5t84d5d5cs2fq738myq74v8jwvt6
+ 81.       6 TX  mtst1aqgvdf6692w2yqfckd2h6a9vu5w9zngx
+ 82.       6 TX  mtst1azwnn6yh39xedstjuw9nz3ewnupad4v2
+ 83.       6 TX  mtst1ap7y5eelaz0v5sgpwxgky2ya6cv43dkw
+ 84.       6 TX  mtst1aql90zcrr8agdsfgh7n3n6v5lyq7qdpm
+ 85.       6 TX  mtst1aqv5x94mdz9ghqfs35vt7dhpayy9ghx6
+ 86.       6 TX  mtst1aqd08ykxarlcssgwl3s7wgeccvzschfn
+ 87.       6 TX  mtst1arly433362mvmsf0cpasmdkv0ct6ljjt
+ 88.       6 TX  mtst1aqz0rpn3k395csfryfmw3ksmlvs39r0s
+ 89.       6 TX  mtst1arwlvkztkfw0jqgt57q2kuns8g3vmc0p
+ 90.       6 TX  mtst1aqy558ju7zs8cqtyz8qy87wx9qnq288x
+ 91.       6 TX  mtst1ar59g59qms8rsytstmr296ypgqwl774k
+ 92.       6 TX  mtst1azpec72rd8ew8studmm09a8n8g4tzvxe
+ 93.       6 TX  mtst1aqeelqtgqevg3qgwgw94qlzxjqr0rql2
+ 94.       6 TX  mtst1aqskts2yspu48qfjanm9ytv3wu7qwd2l
+ 95.       6 TX  mtst1arzxwhz9cquhd5fcgr46chr98uef9k63
+ 96.       6 TX  mtst1arhf4hv2pgx9eq2shlmu47c2aqpr4d6w
+ 97.       6 TX  mtst1aqtc9eawyjd32s2yz3x78yvlvqls9re7
+ 98.       6 TX  mtst1apd5ac34lz5taqg4u8d3y0e2u5t59akx
+ 99.       6 TX  mtst1aphrrcdqdh5uw52ytyhz6rwsav0sthd4
+100.       6 TX  mtst1aq9m2cu9zjx2as2kna4tt29glgkfhqe8
+101.       6 TX  mtst1aq2g2dcthvsd5sg8mhh2u7tllu5tm0t2
+102.       6 TX  mtst1aqcdgak3at7r7yglu5a08te7f533lvyj
+103.       6 TX  mtst1azscyn53kq0v95f3k95krc4vw58zlljp
+104.       6 TX  mtst1apehssn86l3djygjk38kg98xdccgaj9z
+105.       6 TX  mtst1apd6eqf85tyfvy2eyewjsam0fy8mmpzu
+106.       6 TX  mtst1az588ua5ns4m452se6klmqmvqqnjh4rf
+107.       6 TX  mtst1aqmyyxwgtlw8t52xjlwd2jpvr528ggnp
+108.       6 TX  mtst1azl9wxxkjtfp95fgtu50smlg2ctlzw8j
+109.       6 TX  mtst1azg9ukmequ7ru5fcggv2ksy8yuwdc8q0
+110.       6 TX  mtst1aq739knz6nss95tyapfdsv8mcudns546
+111.       6 TX  mtst1aq6c8gkr556h6sfgsnvp7g834vn278xw
+112.       5 TX  mtst1ap07uqpdm5h5u5fvxh2scp0slspchscr
+113.       5 TX  mtst1arn2qpkvmaa3p5f0z40jz4magv2rvju4
+114.       5 TX  mtst1azm64e0d23cguqf7dxm7we8hgu65wu25
+115.       5 TX  mtst1aqpj69hppmzzcs2f0psmcdevwcck5qj5
+116.       5 TX  mtst1apgzfjdyn3u4us25jxwms8u3wcex9src
+117.       5 TX  mtst1ar7eq35u3ylpds2d6uyfqx2kkc69h5gp
+118.       5 TX  mtst1azjyl4hc6nc00qt6rxghuzhdcgjwzcmz
+119.       5 TX  mtst1aqp8kl68lle5gq2g0ts9ewga2q6u2nhe
+120.       5 TX  mtst1arc40neuttfja5g4kzz9aztkyuy5jmwe
+121.       5 TX  mtst1az2y9td934lf3sf2agux8fz2yvkammtr
+122.       5 TX  mtst1ap2vpltryqllvsg8tduuxhl73qwhsa0v
+123.       5 TX  mtst1arl0393u6cwy2sfffmargvwc4sgt2ehw
+124.       5 TX  mtst1azmvtpp3uatvps2upsv0estp3gk8wme0
+125.       5 TX  mtst1azkrezx6njpv8q2n5k5g23z53u7qn26t
+126.       5 TX  mtst1azs7fkz0n20qg5f98c64d00qeuzlf8x8
+127.       5 TX  mtst1aqkqedwttd44yqffpxwcxqrgzv666hua
+128.       5 TX  mtst1azgz5xwyzavz3sgtjrvveu7u6qnxycj4
+129.       5 TX  mtst1ar2a8ppuamxq9qf7q34u0raklgv2qjca
+130.       5 TX  mtst1arcsq3cxlvhy2s2s6vd3np82fyf9q3jy
+131.       5 TX  mtst1az0nyk0y2na52stw00w7pgvnkc3a586w
+132.       5 TX  mtst1ap9fkxuu3eqdgqf3vtqj97tp0gtxrvdl
+133.       5 TX  mtst1aqdynp0sr9uxyq28lvg65gjw0vnun297
+134.       5 TX  mtst1ar079jxdcv39uqgp6757y4l2wu8k8lvf
+135.       5 TX  mtst1arwk02f47c0xmsthx4psljfqqucyk4ey
+136.       5 TX  mtst1ap7ktuejvdzxws2547c39jal0c8mz87y
+137.       5 TX  mtst1aztlh3ywyrgx2s2k4p9xdalygcypsefa
+138.       5 TX  mtst1azzkk93uh3mx6s2qlj7edkg4kc42qkys
+139.       5 TX  mtst1aq9th2ck875mcs22v8cmuzx6squsax9e
+140.       5 TX  mtst1apmgulc840gk6sgd2t0rpgxxyq8z44he
+141.       5 TX  mtst1azuyraqld72auyg9qmgyuyelry5r5mx6
+142.       5 TX  mtst1apk4klxrcxal3yt66t6nz05r7q9f82yk
+143.       5 TX  mtst1az7qsquglqeplq2j04s42pgds5nrk0e7
+144.       5 TX  mtst1aphqqnmexg9rxqfv0sekszumu5jqyd3v
+145.       5 TX  mtst1apvw7sgxj50eysfwlqzxt079wuv5gh65
+146.       5 TX  mtst1aqxde07ah9g7mqtnv4g9fz3jwu4p0xrm
+147.       5 TX  mtst1azfelwt9w8n7ms2z9dlef3xvlyw4vu5k
+148.       5 TX  mtst1ar63j2ksfymmyst07a032y5ekc3ug0e6
+149.       5 TX  mtst1apx3jqjmgpkn4sgws9zxfea78czljr58
+150.       5 TX  mtst1aqlxz7p9sdlwsytpn4r0r02f9gwzvndh
+151.       5 TX  mtst1ar4hu2yzggm3eytas0s05gs4rsk3crjq
+152.       5 TX  mtst1apt7rp3hfkh6qytk23ql9pjz2u08s6a0
+153.       4 TX  mtst1aqznzkxu735aeqfvclnkhplvwya2teux
+154.       4 TX  mtst1apt8ea6x3vhddsf8q8wlrnpe2yru3v2m
+155.       4 TX  mtst1azmcsax97ejehyt65zmj9vct8q7s75yu
+156.       4 TX  mtst1aq5pnnywtvt3asg7qg35u0p96sx6fy4d
+157.       4 TX  mtst1azd4nf836xlpwyt3ufpk4tzzvgvpr3kl
+158.       4 TX  mtst1aprnsmq9f0agfygpkhlxgtpweuzz2svs
+159.       4 TX  mtst1aq6h5gpenws98526lnpyr6qzfymv4klf
+160.       4 TX  mtst1apns0h7lnmt3jq2632xm5ykeev3edpjn
+161.       4 TX  mtst1azche0qrgrz05stdj5g6nka6k5vsd368
+162.       4 TX  mtst1arex7vwc674jf5gx2zh746u8ussqehsr
+163.       4 TX  mtst1aqmc4laeta8jcqf7cygcxsu3rc0s05sm
+164.       4 TX  mtst1aq29puy7m3e2052kyfxtycru7vzgal6p
+165.       4 TX  mtst1azzmmy40m40xh520fnvwd906cck25ptj
+166.       4 TX  mtst1arxefc64kjamd5t7a96t6q0exyr3fges
+167.       4 TX  mtst1ap9k0clrhzgqcqghv850mfvpyu06t3ca
+168.       4 TX  mtst1apz529d5h3qqvqfwf3xylsek4vq2e0yh
+169.       4 TX  mtst1aq9a45lu23sj0sf06hc0cdguec4klxnw
+170.       4 TX  mtst1aqqxq87gk5qwgqgt0ahjex3jssgxcc8f
+171.       4 TX  mtst1ar5tvwkag0ylsq2vzpeqfl9tav9de4ue
+172.       4 TX  mtst1apgrw530c2wkfyt34askwpjv5swyg8rl
+173.       4 TX  mtst1apwgn32fyzdklyg4kg0kaheafyxpg9tx
+174.       4 TX  mtst1arn2gyl5hmcle522zm8rmj67zs8n05vf
+175.       4 TX  mtst1arvdwvzllvg3s5fzjle7nkljeuhkcufr
+176.       4 TX  mtst1arujr3lmtf36w529dtkdsm8p2ck33wp3
+177.       4 TX  mtst1aq47rnuxx67u4sfm0nwsn70py5pkqmue
+178.       4 TX  mtst1aq6p3lwaxqzahsg8m6qzy4lh85e3r3r7
+179.       4 TX  mtst1ar5zq4rf65sr05faly8cnjag5cyxadgs
+180.       4 TX  mtst1arvjgl5cjl8crqt3r9mgguxlyuqtwkra
+181.       4 TX  mtst1aquglvq4d8k775tkw2nvz2p34v7adllu
+182.       4 TX  mtst1aqax98nahhwxay2hgauusjk8gyk2uz32
+183.       4 TX  mtst1aqsm60ll57d76qfhm3dq3uwwnccy498d
+184.       4 TX  mtst1azejlcrsft7szq2p52wft7j58qql5ulw
+185.       4 TX  mtst1aqv3n0z5786vg5fdsahxz2a64csc7epr
+186.       4 TX  mtst1armx8g5t80lnxstfut0uszeex58dctzx
+187.       4 TX  mtst1aqps6tj55n6xjyt5k6s2854jfqge6jga
+188.       4 TX  mtst1az4m6rv0a9zuvsfmpmwj033d9gl0235w
+189.       4 TX  mtst1azu0ckmm8flfrytqrcytuhm505v2nu5g
+190.       4 TX  mtst1aqn893hmkqztvsgmhh93ac8twy3gf03q
+191.       4 TX  mtst1ar8xke66j3ggsyfeqwj83kwzccck3w76
+192.       4 TX  mtst1appgr7yve8xxp5fcxhxwrm2mxy6gsw8z
+193.       4 TX  mtst1apz4qyxnleaulqf4e56wku8jdcwedjfv
+194.       4 TX  mtst1aprzmyuxkezc25f4etyjqh7a5q2kvy43
+195.       4 TX  mtst1ap2tg9k8xs00sstu0w5jcjnl5s5c72zm
+196.       4 TX  mtst1aqwvq0l6d5ulzyt3yy7wpx8j7q8h2kpg
+197.       4 TX  mtst1aq29pqulz3jfgygv29yxpm7j9v2ayz0y
+198.       4 TX  mtst1az7wzx0uvxqszsfwsx96guesxuacj5mx
+199.       4 TX  mtst1ar6pq5x07dhgsstnrufyr4w0yqcad24y
+200.       4 TX  mtst1arp8cmqss5rpjyt4pqrur57xgu7eze04
+"""
+
+# Sənin cüzdan prefiksin
+MY_WALLET = "mtst1azrrg9t9npcgqqtwg7r8v3zavygw4h5t"
+
+all_addrs = re.findall(r"mtst1[a-z0-9_]+", raw_data)
+unique_targets = []
+
+for addr in all_addrs:
+    # Sənin cüzdanını xaric et və təkrarları sil
+    if not addr.startswith(MY_WALLET) and addr not in unique_targets:
+        unique_targets.append(addr)
+
+with open("top_active_targets.txt", "w") as f:
+    for t in unique_targets:
+        f.write(f"{t}\n")
+
+print(f">> Sənin cüzdanın xaric edildi.")
+print(f">> Toplam {len(unique_targets)} ədəd unikal TOP aktiv hədəf 'top_active_targets.txt' faylına yazıldı.")

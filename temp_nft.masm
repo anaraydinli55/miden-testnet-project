@@ -1,0 +1,5 @@
+@transaction_script
+    pub proc main
+        push.0x62c1fb2e95bec7c033db789db63897b9daa56caf6085fe329088242b87eaa484
+        dropw
+    end

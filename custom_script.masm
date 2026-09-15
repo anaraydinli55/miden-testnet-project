@@ -1,0 +1,7 @@
+use.miden::contracts::wallets::basic->wallet
+use.miden::core::account
+
+begin
+    # Gelen varlığı (asset) cüzdanın kasasına ekleyen MASM fonksiyon çağrısı
+    call.wallet::receive_asset
+end
