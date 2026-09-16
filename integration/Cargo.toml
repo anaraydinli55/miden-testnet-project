@@ -13,3 +13,6 @@ miden-mast-package = { version = "0.23", default-features = false }
 tokio = { version = "1.48", features = ["rt-multi-thread", "net", "macros", "fs"] }
 rand = { version = "0.9" }
 anyhow = "1.0"
+axum = "0.8.9"
+tower-http = { version = "0.7.1", features = ["cors"] }
+serde = { version = "1.0.229", features = ["derive"] }

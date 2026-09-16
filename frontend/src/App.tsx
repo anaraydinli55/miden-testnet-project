@@ -8,6 +8,8 @@ const MIDEN_BRIDGE = '0x5eb65e512ab979911ec04e6798ead0'
 const BANK_CONTRACT_ID = "0xa4a6062a3e32ef311d57f9f00ca71b"
 const TIMELOCK_VAULT_ID = "0xb7245ee36bb8a9d1516d7b153f22d9"
 const ESCROW_CONTRACT_ID = "0x794d75d9138f2af126b9ebd7d455eb"
+const PREDICTION_MARKET_ID = "0x52546afa0b3d9f11334093a32d1a54"
+const PREDICTION_NOTE_ROOT = "0x1f729bca224ca17afca549d84da4fd465300bcadba9f63e5df87e0fcd5679e79"
 
 const FAUCET_COOLDOWN_MS = 0  // Cooldown devre disi (test icin)
 
@@ -55,7 +57,7 @@ function App() {
   const [balance, setBalance] = useState('0')
   const [signer, setSigner] = useState(null)
 
-  const [activeTab, setActiveTab] = useState('bridge')
+  const [activeTab, setActiveTab] = useState('prediction')
   const [loading, setLoading] = useState(false)
   const [txHash, setTxHash] = useState(null)
   const [midenTxHash, setMidenTxHash] = useState(null)
@@ -66,6 +68,8 @@ function App() {
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [vaultAmount, setVaultAmount] = useState('100')
   const [escrowAmount, setEscrowAmount] = useState('50')
+  const [predictionChoice, setPredictionChoice] = useState('YES')
+  const [predictionAmount, setPredictionAmount] = useState('10')
 
   const [burnEvents, setBurnEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(false)
@@ -409,6 +413,22 @@ function App() {
     } finally { setLoading(false) }
   }
 
+  
+  const handleSubmitPrediction = async () => {
+    if (!midenConnected) { alert("Once Miden Wallet bagla!"); return }
+    setLoading(true)
+    try {
+      await sendMidenTx("send", {
+        recipient: PREDICTION_MARKET_ID,
+        amount: predictionAmount,
+        faucetId: defaultFaucetId,
+        noteRoot: PREDICTION_NOTE_ROOT,
+        marketId: 1,
+        choice: predictionChoice
+      }, "ZK Prediction Vote: " + predictionChoice + " (" + predictionAmount + " SKS)")
+    } finally { setLoading(false) }
+  }
+
   const handleTriggerEscrow = async () => {
     if (!midenConnected) { alert('Once Miden Wallet bagla!'); return }
     setLoading(true)
@@ -424,8 +444,8 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>SAKASENA Finance</h1>
-        <p>Miden ↔ EVM Sepolia</p>
+        <h1>🥊 Miden Arena</h1>
+        <p>ZK Prediction Market on Miden</p>
       </header>
 
       <div className="wallet">
@@ -470,7 +490,7 @@ function App() {
       </div>
 
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {['bridge','bank','vault','escrow'].map(tab => (
+        {['bridge','bank','vault','escrow','prediction'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer',
             background: activeTab === tab ? '#f59e0b' : '#1e293b',
@@ -550,6 +570,77 @@ function App() {
             style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', marginBottom: '12px' }} />
           <button className="btn btn-dep" onClick={handleCreateTimeLock} disabled={!midenConnected || loading} style={{ width: '100%' }}>
             {loading ? '⏳...' : 'Create Time-Locked Deposit'}
+          </button>
+        </div>
+      )}
+
+      
+      {activeTab === 'prediction' && (
+        <div style={{ maxWidth: '600px', margin: '0 auto', background: '#1e293b', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '8px' }}>🥊 Miden Arena: ZK Prediction Market</h3>
+          <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Contract: {PREDICTION_MARKET_ID}</p>
+          
+          <div style={{ background: '#0f172a', padding: '16px', borderRadius: '12px', border: '1px solid #334155', marginBottom: '16px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#f8fafc', marginBottom: '6px' }}>
+              🎯 Market #1: Prediction Market Pool
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
+              <span>🟢 YES Pool: 10 SKS</span>
+              <span>🔴 NO Pool: 0 SKS</span>
+              <span>📈 Total: 10 SKS</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+            <button 
+              type="button" 
+              onClick={() => setPredictionChoice('YES')}
+              style={{
+                flex: 1,
+                padding: '12px',
+                borderRadius: '8px',
+                border: predictionChoice === 'YES' ? '2px solid #22c55e' : '1px solid #334155',
+                background: predictionChoice === 'YES' ? 'rgba(34, 197, 94, 0.15)' : '#0f172a',
+                color: predictionChoice === 'YES' ? '#22c55e' : '#94a3b8',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              🟢 VOTE YES
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setPredictionChoice('NO')}
+              style={{
+                flex: 1,
+                padding: '12px',
+                borderRadius: '8px',
+                border: predictionChoice === 'NO' ? '2px solid #ef4444' : '1px solid #334155',
+                background: predictionChoice === 'NO' ? 'rgba(239, 68, 68, 0.15)' : '#0f172a',
+                color: predictionChoice === 'NO' ? '#ef4444' : '#94a3b8',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              🔴 VOTE NO
+            </button>
+          </div>
+
+          <input 
+            type="number" 
+            placeholder="Points / SKS Amount" 
+            value={predictionAmount} 
+            onChange={e => setPredictionAmount(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #334155', background: '#0f172a', color: '#e2e8f0', marginBottom: '12px' }} 
+          />
+
+          <button 
+            className="btn btn-dep" 
+            onClick={handleSubmitPrediction} 
+            disabled={!midenConnected || loading} 
+            style={{ width: '100%', background: '#8b5cf6' }}
+          >
+            {loading ? '⏳ Generating ZK Proof...' : '⚡ Submit ZK Prediction Note'}
           </button>
         </div>
       )}

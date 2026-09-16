@@ -1,0 +1,15 @@
+[package]
+name = "prediction_note"
+version = "0.1.0"
+
+[lib]
+kind = "note"
+namespace = "miden:prediction-note/miden-prediction-note@0.1.0"
+
+[dependencies]
+miden-core = "*"
+miden-protocol = "*"
+prediction-market = { path = "../prediction-market" }
+
+[package.metadata.miden.dependencies]
+prediction-market = { wit = "../prediction-market/target/generated-wit/" }

@@ -39,3 +39,14 @@ relayer/*.db-journal
 integration/*.log
 .vercel
 .env*
+
+# Miden Keys, Keystores and SQLite Databases
+keystore/
+keystore_backups/
+*.mac
+*.key
+*.sqlite3*
+*.db
+
+# Build artifacts
+target/
